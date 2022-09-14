@@ -1,30 +1,35 @@
 #!/usr/bin/env python
 
 import sys
+from pathlib import Path
+
+import pydantic
 
 from fs_schema_validator import Schema
 
 if __name__ == '__main__':
     with open(sys.argv[1]) as f:
-        schema = Schema.from_yaml(f)
+        try:
+            schema = Schema.from_yaml(f)
+        except pydantic.ValidationError as e:
+            print(f"❗️ The provided schema is invalid!")
+            print()
+            print(e)
+            sys.exit(127)
 
-    report = schema.validate_()
+    report = schema.validate_(root_dir=Path.cwd())
+
+    for valid_path in report.valid_paths:
+        print(f"✅ {valid_path}")
 
     if len(report.errors) == 0:
-        print("✅ All good!")
         sys.exit(0)
 
-    print(f"Found {len(report.errors)} validation error(s):")
-    print("")
-
     for path, reasons in report.grouped_by_path():
-        print(f"❗️ path: `{path}`")
+        print(f"❗️ {path}")
 
-        if len(reasons) == 1:
-            print(f"   reason: {reasons[0]}")
-        else:
-            print("   reasons:")
-            for reason in reasons:
-                print(f"      - {reason}")
+        print("     reasons:")
+        for reason in reasons:
+            print(f"     - {reason}")
 
     sys.exit(1)

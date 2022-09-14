@@ -1,0 +1,11 @@
+{
+  "colormap": 4,
+  "array": [1],
+  "tuple": [1, "2", 3.0],
+  "mag_u": 9.0,
+  "foo": "bar",
+  "bool": true,
+  "nested": {
+    "foo": 3.2
+  }
+}

@@ -1,0 +1,37 @@
+schema:
+  - type: png
+    path: image.png
+
+  - type: json
+    path: info.json
+    spec: 
+      type: object
+      attrs:
+        colormap:
+          type: int
+          minimum: 0
+        bool:
+          type: bool
+        array:
+          type: array
+          unique_items: true
+          min_items: 1
+          inner:
+            type: int
+        tuple:
+          type: fixed_array
+          items:
+            - type: int
+            - type: str
+            - type: float
+        mag_u:
+          type: float
+          minimum: 0.0
+          maximum: 10.0
+        foo:
+          type: str
+        nested:
+          type: object
+          attrs:
+            foo:
+              type: float
