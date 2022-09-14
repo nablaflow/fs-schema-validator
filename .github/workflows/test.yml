@@ -1,0 +1,89 @@
+name: ci-staging
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  FORCE_COLOR: 1
+  POETRY_VERSION: "1.2.0"
+
+jobs:
+  deps:
+    name: deps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: abatilo/actions-poetry@v2
+
+      - id: poetry-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-poetry-${{ env.POETRY_VERSION }}-lock-${{ hashFiles('poetry.lock') }}
+
+      - run: poetry install
+        if: steps.poetry-cache.outputs.cache-hit != 'true'
+
+  mypy:
+    name: mypy
+    needs:
+      - deps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: abatilo/actions-poetry@v2
+
+      - id: poetry-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-poetry-${{ env.POETRY_VERSION }}-lock-${{ hashFiles('poetry.lock') }}
+
+      - run: poetry run mypy .
+
+  pytest:
+    name: pytest
+    needs:
+      - deps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - uses: abatilo/actions-poetry@v2
+
+      - id: poetry-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-python-${{ matrix.python-version }}-poetry-${{ env.POETRY_VERSION }}-lock-${{ hashFiles('poetry.lock') }}
+
+      - run: poetry run pytest .
