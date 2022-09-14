@@ -12,7 +12,6 @@ from typing import (
     Optional,
     Tuple,
     Type,
-    TypeAlias,
     Union,
     cast,
 )
