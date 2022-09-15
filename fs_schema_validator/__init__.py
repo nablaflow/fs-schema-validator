@@ -12,13 +12,13 @@ if typing.TYPE_CHECKING:
     from _typeshed import SupportsRead
 
 from fs_schema_validator.report import ValidationReport
+from fs_schema_validator.schemas.image import ImageSchema
 from fs_schema_validator.schemas.json import JsonSchema
-from fs_schema_validator.schemas.png import PngSchema
 
 Validator = Annotated[
     Union[
         JsonSchema,
-        PngSchema,
+        ImageSchema,
     ],
     Field(discriminator="type"),
 ]

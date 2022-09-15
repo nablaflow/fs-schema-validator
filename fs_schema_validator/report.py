@@ -11,14 +11,16 @@ class ValidationError(BaseModel):
     path: Path
     reason: str
 
-    @staticmethod
-    def missing_path(path: Path) -> ValidationError:
-        return ValidationError(path=path, reason="does not exist")
-
 
 class ValidationReport(BaseModel):
     errors: List[ValidationError] = []
     valid_paths: List[Path] = []
+
+    def append(self, path: Path, reason: str) -> None:
+        self.errors.append(ValidationError(path=path, reason=reason))
+
+    def append_missing_file(self, path: Path) -> None:
+        self.append(path=path, reason="does not exist")
 
     def grouped_by_path(self) -> Iterator[Tuple[Path, List[str]]]:
         return map(

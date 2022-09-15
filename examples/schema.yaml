@@ -1,6 +1,19 @@
 schema:
-  - type: png
+  - type: image
+    format: png
     path: image.png
+
+  - type: image
+    format: webp
+    path: image.webp
+
+  - type: image
+    format: jpeg
+    path: image.jpg
+
+  - type: image
+    format: png
+    path: not-a-png.png
 
   - type: json
     path: info.json

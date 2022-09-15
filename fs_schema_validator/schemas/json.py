@@ -158,9 +158,7 @@ class JsonSchema(BaseModel):
             try:
                 json = orjson.loads(f.read())
             except orjson.JSONDecodeError as e:
-                report.errors.append(
-                    ValidationError(path=self.path, reason=f"invalid json file: {e}")
-                )
+                report.append(path=self.path, reason=f"invalid json file: {e}")
 
             schema = self.spec.gen_schema()
 
@@ -172,8 +170,4 @@ class JsonSchema(BaseModel):
                         (str(span) for span in error["loc"] if span != "__root__")
                     )
 
-                    report.errors.append(
-                        ValidationError(
-                            path=self.path, reason=f"`{json_path}`: {error['msg']}"
-                        )
-                    )
+                    report.append(path=self.path, reason=f"`{json_path}`: {error['msg']}")

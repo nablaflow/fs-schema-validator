@@ -6,6 +6,8 @@ import pytest
 from fs_schema_validator import Schema
 from fs_schema_validator.report import ValidationError
 
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
+
 
 def test_empty_schema_ok(tmp_path: Path) -> None:
     schema = Schema.from_yaml(
@@ -24,8 +26,7 @@ def test_simple_schema_fail(simple_schema: Schema, tmp_path: Path) -> None:
 
 
 def test_simple_schema_ok(simple_schema: Schema, tmp_path: Path) -> None:
-    png_path = tmp_path / "foo.png"
-    png_path.write_bytes(bytes())
+    (tmp_path / "foo.png").symlink_to(FIXTURES_DIR / "image.png")
 
     json_path = tmp_path / "bar.json"
     json_path.write_bytes(orjson.dumps({"foo": 1, "bar": "bar", "baz": 3.0}))
@@ -122,7 +123,8 @@ def simple_schema() -> Schema:
     return Schema.from_yaml(
         """
       schema:
-        - type: png
+        - type: image
+          format: png
           path: foo.png
         - type: json
           path: bar.json
