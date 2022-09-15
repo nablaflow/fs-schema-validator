@@ -12,6 +12,7 @@ if typing.TYPE_CHECKING:
     from _typeshed import SupportsRead
 
 from fs_schema_validator.report import ValidationReport
+from fs_schema_validator.schemas.gltf import GltfSchema
 from fs_schema_validator.schemas.image import ImageSchema
 from fs_schema_validator.schemas.json import JsonSchema
 
@@ -19,6 +20,7 @@ Validator = Annotated[
     Union[
         JsonSchema,
         ImageSchema,
+        GltfSchema,
     ],
     Field(discriminator="type"),
 ]

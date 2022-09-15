@@ -1,26 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import (
-    Annotated,
-    Any,
-    Dict,
-    Iterator,
-    List,
-    Literal,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-    cast,
-)
+from typing import Annotated, Dict, Literal, NamedTuple, Optional, Type, Union, cast
 
 import orjson
 import pydantic
 from pydantic import BaseModel, Field, StrictBool, confloat, conint, conlist, constr
 
-from fs_schema_validator.report import ValidationError, ValidationReport
+from fs_schema_validator.report import ValidationReport
 from fs_schema_validator.utils import _assert_path_exists
 
 JsonValue = Annotated[

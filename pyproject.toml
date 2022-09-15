@@ -12,6 +12,7 @@ python = "^3.9"
 orjson = "^3.8.0"
 pillow = "^9.2.0"
 pydantic = "^1.10.2"
+pygltflib = "^1.15.3"
 pyyaml = "^6.0"
 
 [tool.poetry.group.dev.dependencies]
@@ -51,6 +52,12 @@ warn_unused_configs = true
 warn_unused_ignores = true
 
 plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = [
+    "pygltflib",
+]
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core"]

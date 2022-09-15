@@ -5,7 +5,7 @@ from typing import Literal
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
 
-from fs_schema_validator.report import ValidationError, ValidationReport
+from fs_schema_validator.report import ValidationReport
 from fs_schema_validator.utils import _assert_path_exists
 
 

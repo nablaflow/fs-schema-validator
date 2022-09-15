@@ -15,6 +15,22 @@ schema:
     format: png
     path: not-a-png.png
 
+  - type: gltf
+    format: glb
+    path: asset.glb
+
+  - type: gltf
+    format: glb
+    path: corrupted-asset.glb
+
+  - type: gltf
+    format: gltf
+    path: asset.gltf
+
+  - type: gltf
+    format: gltf
+    path: corrupted-asset.gltf
+
   - type: json
     path: info.json
     spec: 
