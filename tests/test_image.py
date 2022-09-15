@@ -16,6 +16,14 @@ def test_ok(schema: Schema, tmp_path: Path) -> None:
     assert schema.validate_(root_dir=tmp_path).errors == []
 
 
+def test_missing(schema: Schema, tmp_path: Path) -> None:
+    assert schema.validate_(root_dir=tmp_path).errors == [
+        ValidationError(path=Path("image.png"), reason="does not exist"),
+        ValidationError(path=Path("image.webp"), reason="does not exist"),
+        ValidationError(path=Path("image.jpg"), reason="does not exist"),
+    ]
+
+
 def test_fail(schema: Schema, tmp_path: Path) -> None:
     (tmp_path / "image.png").symlink_to(FIXTURES_DIR / "image.webp")
     (tmp_path / "image.webp").symlink_to(FIXTURES_DIR / "image.jpg")
