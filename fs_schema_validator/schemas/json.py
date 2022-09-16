@@ -137,24 +137,29 @@ class JsonSchema(BaseModel):
     path: Path
     spec: JsonValue
 
-    def validate_(self, root_dir: Path, report: ValidationReport) -> None:
+    def validate_(self, root_dir: Path, report: ValidationReport) -> bool:
         if not _assert_path_exists(root_dir, self.path, report):
-            return
+            return False
 
         with (root_dir / self.path).open() as f:
             try:
                 json = orjson.loads(f.read())
             except orjson.JSONDecodeError as e:
                 report.append(path=self.path, reason=f"invalid json file: {e}")
+                return False
 
-            schema = self.spec.gen_schema()
+        schema = self.spec.gen_schema()
 
-            try:
-                pydantic.parse_obj_as(schema, json)
-            except pydantic.ValidationError as e:
-                for error in e.errors():
-                    json_path = ".".join(
-                        (str(span) for span in error["loc"] if span != "__root__")
-                    )
+        try:
+            pydantic.parse_obj_as(schema, json)
+        except pydantic.ValidationError as e:
+            for error in e.errors():
+                json_path = ".".join(
+                    (str(span) for span in error["loc"] if span != "__root__")
+                )
 
-                    report.append(path=self.path, reason=f"`{json_path}`: {error['msg']}")
+                report.append(path=self.path, reason=f"`{json_path}`: {error['msg']}")
+
+            return False
+
+        return True

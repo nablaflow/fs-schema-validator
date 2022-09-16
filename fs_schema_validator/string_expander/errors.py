@@ -1,0 +1,2 @@
+class UnboundSymbol(ValueError):
+    pass

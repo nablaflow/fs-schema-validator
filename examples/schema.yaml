@@ -1,3 +1,9 @@
+bindings:
+  range: [0, 2]
+  enum:
+    - foo
+    - bar
+
 schema:
   - type: image
     format: png
@@ -30,6 +36,14 @@ schema:
   - type: gltf
     format: gltf
     path: corrupted-asset.gltf
+
+  - type: gltf
+    format: glb
+    path: asset-{$range}.glb
+
+  - type: gltf
+    format: glb
+    path: asset-{$range}-{$enum}.glb
 
   - type: json
     path: info.json

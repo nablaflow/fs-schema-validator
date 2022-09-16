@@ -20,9 +20,9 @@ class GltfSchema(BaseModel):
     format: GltfFormat
     path: Path
 
-    def validate_(self, root_dir: Path, report: ValidationReport) -> None:
+    def validate_(self, root_dir: Path, report: ValidationReport) -> bool:
         if not _assert_path_exists(root_dir, self.path, report):
-            return
+            return False
 
         try:
             if self.format == GltfFormat.GLTF:
@@ -33,7 +33,10 @@ class GltfSchema(BaseModel):
             report.append(
                 path=self.path, reason=f"failed to deserialize: ({type(e)}) {e}"
             )
-            return
+            return False
 
         if len(gltf.nodes) == 0:
             report.append(path=self.path, reason="file does not contain nodes")
+            return False
+
+        return True

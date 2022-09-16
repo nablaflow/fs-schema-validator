@@ -24,9 +24,9 @@ class ImageSchema(BaseModel):
     format: ImageFormat
     path: Path
 
-    def validate_(self, root_dir: Path, report: ValidationReport) -> None:
+    def validate_(self, root_dir: Path, report: ValidationReport) -> bool:
         if not _assert_path_exists(root_dir, self.path, report):
-            return
+            return False
 
         try:
             with Image.open(root_dir / self.path) as im:
@@ -35,10 +35,15 @@ class ImageSchema(BaseModel):
                         path=self.path,
                         reason=f"image is not in {self.format.value} format (unknown format detected)",
                     )
+                    return False
                 elif im.format != self.format.to_pillow_format():
                     report.append(
                         path=self.path,
                         reason=f"image is not in {self.format.value} format (got {im.format.lower()})",
                     )
+                    return False
         except UnidentifiedImageError:
             report.append(path=self.path, reason="file does not contain a valid image")
+            return False
+
+        return True

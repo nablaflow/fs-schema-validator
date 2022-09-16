@@ -4,17 +4,20 @@ import itertools
 from pathlib import Path
 from typing import Iterator, List, Tuple
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ValidationError(BaseModel):
     path: Path
     reason: str
 
+    class Config:
+        frozen = True
+
 
 class ValidationReport(BaseModel):
-    errors: List[ValidationError] = []
-    valid_paths: List[Path] = []
+    errors: List[ValidationError] = Field(default_factory=list)
+    valid_paths: List[Path] = Field(default_factory=list)
 
     def append(self, path: Path, reason: str) -> None:
         self.errors.append(ValidationError(path=path, reason=reason))
@@ -32,3 +35,9 @@ class ValidationReport(BaseModel):
 
     def mark_file_as_ok(self, path: Path) -> None:
         self.valid_paths.append(path)
+
+    def count(self) -> int:
+        return len(self.errors) + len(self.valid_paths)
+
+    def okay(self) -> bool:
+        return len(self.errors) == 0
