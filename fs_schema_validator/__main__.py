@@ -56,15 +56,6 @@ def validate(
         click.echo(f"Root dir: {root_dir}")
         click.echo()
 
-    with schema_path.open() as f:
-        try:
-            schema = Schema.from_yaml(f)
-        except (pydantic.ValidationError, UnicodeDecodeError) as e:
-            click.secho(f"❗️ The provided schema is invalid!", fg="red")
-            click.echo("")
-            click.secho(e, fg="red")
-            sys.exit(127)
-
     extra_bindings = dict(binding)
 
     if verbose and len(extra_bindings) > 0:
@@ -75,7 +66,16 @@ def validate(
 
         click.echo()
 
-    report = schema.validate_(root_dir, extra_bindings)
+    with schema_path.open() as f:
+        try:
+            schema = Schema.from_yaml(f, extra_bindings)
+        except (pydantic.ValidationError, UnicodeDecodeError) as e:
+            click.secho(f"❗️ The provided schema is invalid!", fg="red")
+            click.echo("")
+            click.secho(e, fg="red")
+            sys.exit(127)
+
+    report = schema.validate_(root_dir)
 
     if verbose:
         click.echo(f"Inspected {report.count()} files.")

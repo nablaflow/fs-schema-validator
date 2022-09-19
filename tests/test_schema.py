@@ -50,3 +50,22 @@ def test_variable_expansion(tmp_path: Path) -> None:
         ValidationError(path=Path("foo-baz-1.png"), reason="does not exist"),
         ValidationError(path=Path("foo-baz-2.png"), reason="does not exist"),
     }
+
+
+def test_expansion_not_in_paths(tmp_path: Path) -> None:
+    schema = Schema.from_yaml(
+        """
+      bindings:
+        formats: [webp, png]
+      schema:
+        - type: image
+          format: "{$formats}"
+          path: "{foo|bar}.{$format}"
+    """
+    )
+    assert set(schema.validate_(root_dir=tmp_path).errors) == {
+        ValidationError(path=Path("foo.webp"), reason="does not exist"),
+        ValidationError(path=Path("foo.png"), reason="does not exist"),
+        ValidationError(path=Path("bar.webp"), reason="does not exist"),
+        ValidationError(path=Path("bar.png"), reason="does not exist"),
+    }

@@ -9,7 +9,7 @@ from .errors import UnboundSymbol
 class String:
     string: str
 
-    def expand(self, _bindings: "Bindings") -> Iterator[str]:
+    def expand(self, _bindings: "Bindings", leave_unbound_vars_in: bool) -> Iterator[str]:
         return iter([self.string])
 
     def __str__(self) -> str:
@@ -20,18 +20,23 @@ class String:
 class Binding:
     ident: str
 
-    def expand(self, bindings: "Bindings") -> Iterator[str]:
+    def expand(self, bindings: "Bindings", leave_unbound_vars_in: bool) -> Iterator[str]:
         try:
-            return bindings[self.ident].expand(bindings)
+            binding = bindings[self.ident]
         except KeyError:
-            raise UnboundSymbol(f"no value provided for binding ${self.ident}")
+            if leave_unbound_vars_in:
+                return iter([f"{{${self.ident}}}"])
+            else:
+                raise UnboundSymbol(f"no value provided for binding ${self.ident}")
+
+        return binding.expand(bindings, leave_unbound_vars_in)
 
 
 @dataclass(frozen=True)
 class Enum:
     variants: Set[str]
 
-    def expand(self, _bindings: "Bindings") -> Iterator[str]:
+    def expand(self, _bindings: "Bindings", leave_unbound_vars_in: bool) -> Iterator[str]:
         return iter(self.variants)
 
     def __str__(self) -> str:
@@ -43,7 +48,7 @@ class Range:
     start: int
     end: int
 
-    def expand(self, _bindings: "Bindings") -> Iterator[str]:
+    def expand(self, _bindings: "Bindings", leave_unbound_vars_in: bool) -> Iterator[str]:
         return (str(n) for n in range(self.start, self.end + 1))
 
     def __str__(self) -> str:

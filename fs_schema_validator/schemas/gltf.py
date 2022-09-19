@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from pygltflib import GLTF2
 
 from fs_schema_validator.report import ValidationReport
+from fs_schema_validator.string_expander.values import Bindings, String
 from fs_schema_validator.utils import _assert_path_exists
 
 
@@ -19,6 +20,11 @@ class GltfSchema(BaseModel):
     type: Literal["gltf"]
     format: GltfFormat
     path: Path
+
+    def inner_bindings(self) -> Bindings:
+        return {
+            "format": String(self.format.value),
+        }
 
     def validate_(self, root_dir: Path, report: ValidationReport) -> bool:
         if not _assert_path_exists(root_dir, self.path, report):

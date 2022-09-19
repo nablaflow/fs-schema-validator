@@ -5,6 +5,7 @@ import pytest
 
 from fs_schema_validator import Schema
 from fs_schema_validator.report import ValidationError
+from fs_schema_validator.string_expander.values import String
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
@@ -31,6 +32,40 @@ def test_ok(schema: Schema, tmp_path: Path) -> None:
     )
 
     assert schema.validate_(root_dir=tmp_path).errors == []
+
+
+def test_binding_replacement_in_json_schema(tmp_path: Path) -> None:
+    json_path = tmp_path / "file.json"
+    json_path.write_bytes(orjson.dumps({"array": [1, 2, 3, 4]}))
+
+    yaml = """
+      schema:
+        - type: json
+          path: file.json
+          spec:
+            type: object
+            attrs:
+              array:
+                type: array
+                min_items: "{$count}"
+                max_items: "{$count}"
+                inner:
+                  type: int
+    """
+
+    assert (
+        Schema.from_yaml(yaml, {"count": String("4")}).validate_(root_dir=tmp_path).errors
+        == []
+    )
+
+    assert Schema.from_yaml(yaml, {"count": String("5")}).validate_(
+        root_dir=tmp_path
+    ).errors == [
+        ValidationError(
+            path=Path("file.json"),
+            reason="`array`: ensure this value has at least 5 items",
+        )
+    ]
 
 
 def test_missing(schema: Schema, tmp_path: Path) -> None:

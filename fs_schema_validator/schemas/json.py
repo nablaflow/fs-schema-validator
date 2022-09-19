@@ -8,6 +8,7 @@ import pydantic
 from pydantic import BaseModel, Field, StrictBool, confloat, conint, conlist, constr
 
 from fs_schema_validator.report import ValidationReport
+from fs_schema_validator.string_expander.values import Bindings
 from fs_schema_validator.utils import _assert_path_exists
 
 JsonValue = Annotated[
@@ -136,6 +137,9 @@ class JsonSchema(BaseModel):
     type: Literal["json"]
     path: Path
     spec: JsonValue
+
+    def inner_bindings(self) -> Bindings:
+        return {}
 
     def validate_(self, root_dir: Path, report: ValidationReport) -> bool:
         if not _assert_path_exists(root_dir, self.path, report):
