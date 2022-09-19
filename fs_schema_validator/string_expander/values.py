@@ -1,10 +1,11 @@
-from dataclasses import dataclass
 from typing import Dict, Iterator, Set, Tuple, Union
+
+from pydantic.dataclasses import dataclass
 
 from .errors import UnboundSymbol
 
 
-@dataclass
+@dataclass(frozen=True)
 class String:
     string: str
 
@@ -15,7 +16,7 @@ class String:
         return self.string
 
 
-@dataclass
+@dataclass(frozen=True)
 class Binding:
     ident: str
 
@@ -26,7 +27,7 @@ class Binding:
             raise UnboundSymbol(f"no value provided for binding ${self.ident}")
 
 
-@dataclass
+@dataclass(frozen=True)
 class Enum:
     variants: Set[str]
 
@@ -37,7 +38,7 @@ class Enum:
         return "|".join(self.variants)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Range:
     start: int
     end: int
@@ -52,4 +53,4 @@ class Range:
 Value = Union[String, Enum, Range, Binding]
 Expandable = Union[String, Enum, Range]
 Bindings = Dict[str, Expandable]
-Assignment = Tuple[str, Union[Enum, Range, String]]
+Assignment = Tuple[str, Expandable]

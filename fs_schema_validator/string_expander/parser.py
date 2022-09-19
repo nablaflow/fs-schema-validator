@@ -10,17 +10,19 @@ __all__ = [
 ]
 
 
+# TODO: introduce enum variants between "" to include unacceptable characters (|${}) due to parsing.
 class TemplateParsers(TextParsers):  # type: ignore[misc]
     symbol = reg(r"[a-zA-Z][a-zA-Z-_0-9]+")
-    integer = reg(r"\d+") > int
-    enum = rep1sep(symbol, "|") > (lambda l: Enum(set(l)))
+    integer = reg(r"[-+]?\d+") > int
+    enum = rep1sep(reg(r"[^|${}]*"), "|") > (lambda l: Enum(set((s.strip() for s in l))))
     range = (integer << ".." & integer) > (lambda t: Range(t[0], t[1]))
-    binding = ("$" >> symbol) > (lambda s: Binding(s))
-    placeholder = "{" >> (enum | range | binding) << "}"
-    string = reg(r"[^{}]+") > (lambda s: String(s))
+    binding = ("$" >> symbol) > Binding
+    placeholder = "{" >> (binding | range | enum) << "}"
+    string = reg(r"[^{}]+") > String
+
     template = rep1(string | placeholder)
 
-    assignment = (symbol << "=" & (enum | range | string)) > (lambda t: (t[0], t[1]))
+    assignment = (symbol << "=" & (range | enum)) > (lambda t: (t[0], t[1]))
 
 
 def parse_template(s: str) -> List[Value]:
