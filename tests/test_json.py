@@ -61,7 +61,7 @@ def test_binding_replacement_in_json_schema(tmp_path: Path) -> None:
                 type: array
                 min_items: "{$count}"
                 max_items: "{$count}"
-                inner:
+                items:
                   type: int
     """
 
@@ -186,13 +186,13 @@ def schema() -> Schema:
                 type: array
                 min_items: 1
                 max_items: 10
-                inner:
+                items:
                   type: int
               set:
                 type: array
                 unique_items: true
                 min_items: 1
-                inner:
+                items:
                   type: int
               tuple:
                 type: fixed_array

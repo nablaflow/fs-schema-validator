@@ -1,0 +1,48 @@
+bindings:
+  # NOTE: overridden via CLI
+  yaw_angle_idx: [0, 1]
+  slices_idx: [0, 4]
+  axis: [x, y, z]
+  compression: ["", _uncompressed]
+  image_formats: [png, webp]
+schema:
+  # TODO
+  - path: output_{$yaw_angle_idx}/plot_slices_results.json
+    type: json
+    spec:
+      type: int
+
+  - path: output_{$yaw_angle_idx}/drag_convergence.{$format}
+    type: image
+    format: "{$image_formats}"
+  - path: output_{$yaw_angle_idx}/forceBinsBackground_{xy|xz}.{$format}
+    type: image
+    format: "{$image_formats}"
+  - path: output_{$yaw_angle_idx}/lift_convergence.{$format}
+    type: image
+    format: "{$image_formats}"
+  - path: output_{$yaw_angle_idx}/residuals.{$format}
+    type: image
+    format: "{$image_formats}"
+  - path: output_{$yaw_angle_idx}/lic_totalp_coeff_{$axis}_{$slices_idx:02}.{$format}
+    type: image
+    format: "{$image_formats}"
+  - path: output_{$yaw_angle_idx}/totalp_coeff{|_empty}_{$axis}_{$slices_idx:02}.{$format}
+    type: image
+    format: "{$image_formats}"
+  - path: output_{$yaw_angle_idx}/{$axis}_ref_{$slices_idx:02}.{$format}
+    type: image
+    format: "{$image_formats}"
+
+  - path: output_{$yaw_angle_idx}/frictionCoeff{$compression}.{$format}
+    type: gltf
+    format: glb
+  - path: output_{$yaw_angle_idx}/recirculation{$compression}.{$format}
+    type: gltf
+    format: glb
+  - path: output_{$yaw_angle_idx}/streamlines{$compression}.{$format}
+    type: gltf
+    format: glb
+  - path: output_{$yaw_angle_idx}/totalp_coeff{$compression}.{$format}
+    type: gltf
+    format: glb

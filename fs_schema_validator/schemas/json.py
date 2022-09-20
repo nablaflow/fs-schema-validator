@@ -87,14 +87,14 @@ class JsonString(BaseModel):
 
 class JsonArray(BaseModel):
     type: Literal["array"]
-    inner: JsonValue
+    items: JsonValue
     min_items: Optional[int] = None
     max_items: Optional[int] = None
     unique_items: Optional[bool] = None
 
     def gen_schema(self) -> Type:
         return conlist(
-            item_type=self.inner.gen_schema(),
+            item_type=self.items.gen_schema(),
             min_items=self.min_items,
             max_items=self.max_items,
             unique_items=self.unique_items,
