@@ -53,3 +53,10 @@ def test_params() -> None:
 def test_params_fail() -> None:
     with pytest.raises(UnboundSymbol):
         expand("foo-{$foo}-{$bar}.jpg")
+
+
+def test_leave_unbound_bindings() -> None:
+    assert {
+        "foo-{$baz:02}.jpg",
+        "bar-{$baz:02}.jpg",
+    } == set(expand("{foo|bar}-{$baz:02}.jpg", leave_unbound_vars_in=True))

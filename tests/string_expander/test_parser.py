@@ -5,15 +5,21 @@ from fs_schema_validator.string_expander.parser import (
     parse_assignment,
     parse_template,
 )
-from fs_schema_validator.string_expander.values import Binding, Enum, Range, String
+from fs_schema_validator.string_expander.values import (
+    Binding,
+    Enum,
+    Expansion,
+    Range,
+    String,
+)
 
 
 def test_template() -> None:
     assert [
         String("foo-"),
-        Enum({"bar", "baz"}),
+        Expansion(Enum({"bar", "baz"})),
         String("-"),
-        Range(0, 10),
+        Expansion(Range(0, 10)),
         String(".jpg"),
     ] == parse_template("foo-{bar|baz}-{0..10}.jpg")
 
@@ -27,32 +33,45 @@ def test_template_fail() -> None:
 
 
 def test_enum() -> None:
-    assert [Enum({"foo"})] == parse_template("{foo}")
-    assert [Enum({"+"})] == parse_template("{+}")
-    assert [Enum({"-"})] == parse_template("{-}")
-    assert [Enum({"_"})] == parse_template("{_}")
-    assert [Enum({"foo", "bar"})] == parse_template("{foo|bar}")
-    assert [Enum({"foo", "bar"})] == parse_template("{ foo | bar }")
-    assert [Enum({"foo2"})] == parse_template("{foo2}")
+    assert [Expansion(Enum({"foo"}))] == parse_template("{foo}")
+    assert [Expansion(Enum({"+"}))] == parse_template("{+}")
+    assert [Expansion(Enum({"-"}))] == parse_template("{-}")
+    assert [Expansion(Enum({"_"}))] == parse_template("{_}")
+    assert [Expansion(Enum({"foo", "bar"}))] == parse_template("{foo|bar}")
+    assert [Expansion(Enum({"foo", "bar"}))] == parse_template("{ foo | bar }")
+    assert [Expansion(Enum({"foo2"}))] == parse_template("{foo2}")
 
-    assert [Enum({"foo", ""})] == parse_template("{foo|}")
-    assert [Enum({"foo", ""})] == parse_template("{ foo | }")
-    assert [Enum({""})] == parse_template("{ | }")
-    assert [Enum({""})] == parse_template("{|}")
-    assert [Enum({""})] == parse_template("{}")
+    assert [Expansion(Enum({"foo", ""}))] == parse_template("{foo|}")
+    assert [Expansion(Enum({"foo", ""}))] == parse_template("{ foo | }")
+    assert [Expansion(Enum({""}))] == parse_template("{ | }")
+    assert [Expansion(Enum({""}))] == parse_template("{|}")
+    assert [Expansion(Enum({""}))] == parse_template("{}")
 
-    assert [Enum({"20.."})] == parse_template("{20..}")
-    assert [Enum({"..30"})] == parse_template("{..30}")
+    assert [Expansion(Enum({"20.."}))] == parse_template("{20..}")
+    assert [Expansion(Enum({"..30"}))] == parse_template("{..30}")
+
+
+def test_enum_with_range() -> None:
+    assert [Expansion(Enum({"foo"}), format=">5")] == parse_template("{foo:>5}")
 
 
 def test_range() -> None:
-    assert [Range(0, 10)] == parse_template("{0..10}")
-    assert [Range(20, 100)] == parse_template("{20..100}")
-    assert [Range(-4, 100)] == parse_template("{-4..100}")
+    assert [Expansion(Range(0, 10))] == parse_template("{0..10}")
+    assert [Expansion(Range(20, 100))] == parse_template("{20..100}")
+    assert [Expansion(Range(-4, 100))] == parse_template("{-4..100}")
+
+
+def test_range_with_format() -> None:
+    assert [Expansion(Range(0, 10), format="02")] == parse_template("{0..10:02}")
+    assert [Expansion(Range(20, 100), format="x")] == parse_template("{20..100:x}")
 
 
 def test_binding() -> None:
-    assert [Binding("foo")] == parse_template("{$foo}")
+    assert [Expansion(Binding("foo"))] == parse_template("{$foo}")
+
+
+def test_with_format() -> None:
+    assert [Expansion(Binding("foo"), format="02")] == parse_template("{$foo:02}")
 
 
 def test_binding_fail() -> None:

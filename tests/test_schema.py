@@ -28,6 +28,37 @@ def test_expansion(tmp_path: Path) -> None:
     }
 
 
+def test_range_expansion_with_format(tmp_path: Path) -> None:
+    schema = Schema.from_yaml(
+        """
+      schema:
+        - type: image
+          format: png
+          path: foo-{0..2:02}.png
+    """
+    )
+    assert set(schema.validate_(root_dir=tmp_path).errors) == {
+        ValidationError(path=Path("foo-00.png"), reason="does not exist"),
+        ValidationError(path=Path("foo-01.png"), reason="does not exist"),
+        ValidationError(path=Path("foo-02.png"), reason="does not exist"),
+    }
+
+
+def test_enum_expansion_with_format(tmp_path: Path) -> None:
+    schema = Schema.from_yaml(
+        """
+      schema:
+        - type: image
+          format: png
+          path: foo-{bar|baz:>5}.png
+    """
+    )
+    assert set(schema.validate_(root_dir=tmp_path).errors) == {
+        ValidationError(path=Path("foo-  bar.png"), reason="does not exist"),
+        ValidationError(path=Path("foo-  baz.png"), reason="does not exist"),
+    }
+
+
 def test_variable_expansion(tmp_path: Path) -> None:
     schema = Schema.from_yaml(
         """

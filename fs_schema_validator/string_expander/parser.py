@@ -1,8 +1,10 @@
 from typing import List, Tuple, Union
 
-from parsita import ParseError, TextParsers, reg, rep1, rep1sep
+from parsita import ParseError, TextParsers, opt, reg, rep1, rep1sep
+from pydantic import parse_obj_as
+from sortedcontainers import SortedSet
 
-from .values import Assignment, Binding, Enum, Range, String, Value
+from .values import Assignment, Binding, Enum, Expansion, Range, String, Template
 
 __all__ = [
     "ParseError",
@@ -14,20 +16,25 @@ __all__ = [
 class TemplateParsers(TextParsers):  # type: ignore[misc]
     symbol = reg(r"[a-zA-Z][a-zA-Z-_0-9]+")
     integer = reg(r"[-+]?\d+") > int
-    enum = rep1sep(reg(r"[^|${}]*"), "|") > (lambda l: Enum(set((s.strip() for s in l))))
+    enum = rep1sep(reg(r"[^:|${}]*"), "|") > (
+        lambda l: Enum(SortedSet((s.strip() for s in l)))
+    )
     range = (integer << ".." & integer) > (lambda t: Range(t[0], t[1]))
     binding = ("$" >> symbol) > Binding
-    placeholder = "{" >> (binding | range | enum) << "}"
+    py_format = ":" >> reg(r"[^{}]+")
+    expansion = ("{" >> (binding | range | enum) & opt(py_format) << "}") > (
+        lambda t: Expansion(t[0], format=t[1][0] if len(t[1]) != 0 else None)
+    )
     string = reg(r"[^{}]+") > String
 
-    template = rep1(string | placeholder)
+    template = rep1(string | expansion)
 
     assignment = (symbol << "=" & (range | enum)) > (lambda t: (t[0], t[1]))
 
 
-def parse_template(s: str) -> List[Value]:
-    return TemplateParsers.template.parse(s).or_die()
+def parse_template(s: str) -> Template:
+    return parse_obj_as(Template, TemplateParsers.template.parse(s).or_die())
 
 
 def parse_assignment(s: str) -> Assignment:
-    return TemplateParsers.assignment.parse(s).or_die()
+    return parse_obj_as(Assignment, TemplateParsers.assignment.parse(s).or_die())

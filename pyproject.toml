@@ -15,6 +15,7 @@ pillow = "^9.2.0"
 pydantic = "^1.10.2"
 pygltflib = "^1.15.3"
 pyyaml = "^6.0"
+sortedcontainers = "^2.4.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.8.0"
@@ -59,6 +60,7 @@ plugins = ["pydantic.mypy"]
 module = [
     "parsita",
     "pygltflib",
+    "sortedcontainers",
 ]
 ignore_missing_imports = true
 
