@@ -15,6 +15,7 @@ if typing.TYPE_CHECKING:
 
 import fs_schema_validator.string_expander as string_expander
 from fs_schema_validator.report import ValidationReport
+from fs_schema_validator.schemas.file import FileSchema
 from fs_schema_validator.schemas.gltf import GltfSchema
 from fs_schema_validator.schemas.image import ImageSchema
 from fs_schema_validator.schemas.json import JsonSchema
@@ -25,6 +26,7 @@ Validator = Annotated[
         JsonSchema,
         ImageSchema,
         GltfSchema,
+        FileSchema,
     ],
     Field(discriminator="type"),
 ]

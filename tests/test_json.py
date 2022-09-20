@@ -30,7 +30,7 @@ def test_ok(schema: Schema, tmp_path: Path) -> None:
                 "dict_": {
                     "foo": 1,
                     "bar": 2,
-                }
+                },
             }
         )
     )
