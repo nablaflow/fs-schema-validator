@@ -5,7 +5,16 @@ from typing import Annotated, Dict, Literal, NamedTuple, Optional, Type, Union, 
 
 import orjson
 import pydantic
-from pydantic import BaseModel, Field, StrictBool, confloat, conint, conlist, constr, Extra
+from pydantic import (
+    BaseModel,
+    Extra,
+    Field,
+    StrictBool,
+    confloat,
+    conint,
+    conlist,
+    constr,
+)
 
 from fs_schema_validator.report import ValidationReport
 from fs_schema_validator.string_expander.values import Bindings
