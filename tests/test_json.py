@@ -27,6 +27,10 @@ def test_ok(schema: Schema, tmp_path: Path) -> None:
                 "nested": {
                     "float": 3.5,
                 },
+                "dict_": {
+                    "foo": 1,
+                    "bar": 2,
+                }
             }
         )
     )
@@ -146,6 +150,7 @@ def test_missing(schema: Schema, tmp_path: Path) -> None:
         ({"tuple": ["1", "2", 3.0]}, "`tuple.element_0`: value is not a valid integer"),
         ({"nested": {}}, "`nested.float`: field required"),
         ({"nested": {"float": "2"}}, "`nested.float`: value is not a valid float"),
+        ({"dict_": {"foo": "bar"}}, "`dict_.foo`: value is not a valid integer"),
     ],
 )
 def test_fail(
@@ -222,5 +227,11 @@ def schema() -> Schema:
                 attrs:
                   float:
                     type: float
+              dict_:
+                type: dict
+                keys:
+                  type: string
+                values:
+                  type: int
     """
     )

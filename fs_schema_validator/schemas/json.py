@@ -28,6 +28,7 @@ JsonValue = Annotated[
         "JsonFloat",
         "JsonInt",
         "JsonObject",
+        "JsonDict",
         "JsonString",
     ],
     Field(discriminator="type"),
@@ -137,8 +138,24 @@ class JsonObject(BaseModel, extra=Extra.forbid):
         return pydantic.create_model("JsonObject", **kwargs)  # type: ignore[call-overload]
 
 
+class JsonDict(BaseModel, extra=Extra.forbid):
+    type: Literal["dict"]
+    keys: JsonValue
+    values: JsonValue
+    # TODO:
+    #  min_items: Optional[int] = None
+    #  max_items: Optional[int] = None
+
+    def gen_schema(self) -> Type:
+        return Dict[
+            self.keys.gen_schema(),
+            self.values.gen_schema(),
+        ]
+
+
 JsonArray.update_forward_refs()
 JsonFixedArray.update_forward_refs()
+JsonDict.update_forward_refs()
 JsonObject.update_forward_refs()
 
 
