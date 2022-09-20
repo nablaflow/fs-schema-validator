@@ -160,22 +160,22 @@ def schema() -> Schema:
                 type: bool
               int:
                 type: int
-                minimum: 0
-                maximum: 10
+                min: 0
+                max: 10
                 multiple_of: 2
               int_exclusive:
                 type: int
-                exclusive_minimum: 0
-                exclusive_maximum: 10
+                exclusive_min: 0
+                exclusive_max: 10
               float:
                 type: float
-                minimum: 0
-                maximum: 10
+                min: 0
+                max: 10
                 multiple_of: 2.0
               float_exclusive:
                 type: float
-                exclusive_minimum: 0
-                exclusive_maximum: 10
+                exclusive_min: 0
+                exclusive_max: 10
                 multiple_of: 2.0
               str:
                 type: str

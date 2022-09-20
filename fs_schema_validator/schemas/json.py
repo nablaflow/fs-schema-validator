@@ -27,19 +27,19 @@ JsonValue = Annotated[
 
 class JsonFloat(BaseModel, extra=Extra.forbid):
     type: Literal["float"]
-    minimum: Optional[float] = None
-    exclusive_minimum: Optional[float] = None
-    maximum: Optional[float] = None
-    exclusive_maximum: Optional[float] = None
+    min: Optional[float] = None
+    exclusive_min: Optional[float] = None
+    max: Optional[float] = None
+    exclusive_max: Optional[float] = None
     multiple_of: Optional[float] = None
 
     def gen_schema(self) -> Type:
         return confloat(
             strict=True,
-            ge=self.minimum,
-            le=self.maximum,
-            gt=self.exclusive_minimum,
-            lt=self.exclusive_maximum,
+            ge=self.min,
+            le=self.max,
+            gt=self.exclusive_min,
+            lt=self.exclusive_max,
             multiple_of=self.multiple_of,
         )
 
@@ -53,19 +53,19 @@ class JsonBool(BaseModel, extra=Extra.forbid):
 
 class JsonInt(BaseModel, extra=Extra.forbid):
     type: Literal["int", "integer"]
-    minimum: Optional[int] = None
-    exclusive_minimum: Optional[int] = None
-    maximum: Optional[int] = None
-    exclusive_maximum: Optional[int] = None
+    min: Optional[int] = None
+    exclusive_min: Optional[int] = None
+    max: Optional[int] = None
+    exclusive_max: Optional[int] = None
     multiple_of: Optional[int] = None
 
     def gen_schema(self) -> Type:
         return conint(
             strict=True,
-            ge=self.minimum,
-            le=self.maximum,
-            gt=self.exclusive_minimum,
-            lt=self.exclusive_maximum,
+            ge=self.min,
+            le=self.max,
+            gt=self.exclusive_min,
+            lt=self.exclusive_max,
             multiple_of=self.multiple_of,
         )
 
