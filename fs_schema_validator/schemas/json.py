@@ -45,14 +45,14 @@ class JsonFloat(BaseModel, extra=Extra.forbid):
 
 
 class JsonBool(BaseModel, extra=Extra.forbid):
-    type: Literal["bool"]
+    type: Literal["bool", "boolean"]
 
     def gen_schema(self) -> Type:
         return StrictBool
 
 
 class JsonInt(BaseModel, extra=Extra.forbid):
-    type: Literal["int"]
+    type: Literal["int", "integer"]
     minimum: Optional[int] = None
     exclusive_minimum: Optional[int] = None
     maximum: Optional[int] = None
@@ -71,7 +71,7 @@ class JsonInt(BaseModel, extra=Extra.forbid):
 
 
 class JsonString(BaseModel, extra=Extra.forbid):
-    type: Literal["str"]
+    type: Literal["str", "string"]
     min_length: Optional[int] = None
     max_length: Optional[int] = None
     regex: Optional[str] = None
@@ -86,7 +86,7 @@ class JsonString(BaseModel, extra=Extra.forbid):
 
 
 class JsonArray(BaseModel, extra=Extra.forbid):
-    type: Literal["array"]
+    type: Literal["array", "list"]
     items: JsonValue
     min_items: Optional[int] = None
     max_items: Optional[int] = None
@@ -102,7 +102,7 @@ class JsonArray(BaseModel, extra=Extra.forbid):
 
 
 class JsonFixedArray(BaseModel, extra=Extra.forbid):
-    type: Literal["fixed_array"]
+    type: Literal["fixed_array", "tuple"]
     items: conlist(item_type=JsonValue, min_items=1)  # type: ignore[valid-type]
 
     def gen_schema(self) -> Type:
