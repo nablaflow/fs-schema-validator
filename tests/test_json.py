@@ -80,6 +80,23 @@ def test_binding_replacement_in_json_schema(tmp_path: Path) -> None:
     ]
 
 
+def test_expansion_escaping(tmp_path: Path) -> None:
+    json_path = tmp_path / "file.json"
+    json_path.write_bytes(orjson.dumps("123abc"))
+
+    schema = Schema.from_yaml(
+        """
+      schema:
+        - type: json
+          path: file.json
+          spec:
+            type: string
+            regex: "^[0-9a-f]{{6}}$"
+    """
+    )
+    assert schema.validate_(root_dir=tmp_path).errors == []
+
+
 def test_missing(schema: Schema, tmp_path: Path) -> None:
     assert schema.validate_(root_dir=tmp_path).errors == [
         ValidationError(path=Path("file.json"), reason="does not exist")

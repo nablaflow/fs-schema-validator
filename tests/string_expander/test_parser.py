@@ -24,12 +24,12 @@ def test_template() -> None:
     ] == parse_template("foo-{bar|baz}-{0..10}.jpg")
 
 
-def test_template_fail() -> None:
-    with pytest.raises(ParseError):
-        parse_template("")
+def test_double_parenthesis_are_strings() -> None:
+    assert [String("foo-"), String("{6}")] == parse_template("foo-{{6}}")
 
-    with pytest.raises(ParseError):
-        parse_template("foo-{{foo|bar}}")
+
+def test_empty_string() -> None:
+    assert [String("")] == parse_template("")
 
 
 def test_enum() -> None:

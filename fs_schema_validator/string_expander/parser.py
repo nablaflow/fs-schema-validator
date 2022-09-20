@@ -1,6 +1,6 @@
 from typing import List, Tuple, Union
 
-from parsita import ParseError, TextParsers, opt, reg, rep1, rep1sep
+from parsita import ParseError, TextParsers, lit, opt, reg, rep1, rep1sep
 from pydantic import parse_obj_as
 from sortedcontainers import SortedSet
 
@@ -26,8 +26,11 @@ class TemplateParsers(TextParsers):  # type: ignore[misc]
         lambda t: Expansion(t[0], format=t[1][0] if len(t[1]) != 0 else None)
     )
     string = reg(r"[^{}]+") > String
+    escaped_expansion = ("{{" >> string << "}}") > (lambda s: String(f"{{{s.string}}}"))
 
-    template = rep1(string | expansion)
+    template = rep1(string | expansion | escaped_expansion) | (
+        lit("") > (lambda s: [String(s)])
+    )
 
     assignment = (symbol << "=" & (range | enum)) > (lambda t: (t[0], t[1]))
 
