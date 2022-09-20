@@ -52,7 +52,7 @@ schema:
       attrs:
         colormap:
           type: int
-          minimum: 0
+          min: 0
         bool:
           type: bool
         array:
@@ -69,8 +69,8 @@ schema:
             - type: float
         mag_u:
           type: float
-          minimum: 0.0
-          maximum: 10.0
+          min: 0.0
+          max: 10.0
         foo:
           type: str
         nested:
