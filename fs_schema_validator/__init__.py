@@ -66,8 +66,9 @@ class Schema(BaseModel):
         report = ValidationReport()
 
         for validator in self.validators:
-            if _expand_path(validator).validate_(root_dir, report):
-                report.mark_file_as_ok(validator.path)
+            validator_with_expanded_path = _expand_path(validator)
+            if validator_with_expanded_path.validate_(root_dir, report):
+                report.mark_file_as_ok(validator_with_expanded_path.path)
 
         return report
 
