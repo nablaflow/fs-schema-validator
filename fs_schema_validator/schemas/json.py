@@ -162,7 +162,12 @@ class JsonSchema(BaseModel):
                     (str(span) for span in error["loc"] if span != "__root__")
                 )
 
-                report.append(path=self.path, reason=f"`{json_path}`: {error['msg']}")
+                if len(json_path) == 0:
+                    reason = f"root object: {error['msg']}"
+                else:
+                    reason = f"`{json_path}`: {error['msg']}"
+
+                report.append(path=self.path, reason=reason)
 
             return False
 

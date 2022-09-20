@@ -34,6 +34,18 @@ def test_ok(schema: Schema, tmp_path: Path) -> None:
     assert schema.validate_(root_dir=tmp_path).errors == []
 
 
+def test_root_level_fail(schema: Schema, tmp_path: Path) -> None:
+    json_path = tmp_path / "file.json"
+    json_path.write_bytes(orjson.dumps(1))
+
+    assert schema.validate_(root_dir=tmp_path).errors == [
+        ValidationError(
+            path=Path("file.json"),
+            reason="root object: value is not a valid dict",
+        )
+    ]
+
+
 def test_binding_replacement_in_json_schema(tmp_path: Path) -> None:
     json_path = tmp_path / "file.json"
     json_path.write_bytes(orjson.dumps({"array": [1, 2, 3, 4]}))
