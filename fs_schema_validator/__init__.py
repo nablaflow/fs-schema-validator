@@ -18,7 +18,7 @@ from fs_schema_validator.report import ValidationReport
 from fs_schema_validator.schemas.gltf import GltfSchema
 from fs_schema_validator.schemas.image import ImageSchema
 from fs_schema_validator.schemas.json import JsonSchema
-from fs_schema_validator.string_expander.values import Bindings, Enum, Range
+from fs_schema_validator.string_expander.values import Bindings, Enum, Range, String
 
 Validator = Annotated[
     Union[
@@ -31,7 +31,7 @@ Validator = Annotated[
 
 
 UntypedBindings = Annotated[
-    Dict[str, Union[Tuple[int, int], Set[str]]], Field(default_factory=dict)
+    Dict[str, Union[Tuple[int, int], Set[str], str]], Field(default_factory=dict)
 ]
 
 
@@ -93,6 +93,8 @@ def _type_bindings(untyped_bindings: UntypedBindings) -> Bindings:
             b[k] = Enum(v)
         elif isinstance(v, tuple):
             b[k] = Range(v[0], v[1])
+        elif isinstance(v, str):
+            b[k] = String(v)
 
     return b
 

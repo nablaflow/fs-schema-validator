@@ -64,13 +64,12 @@ def test_variable_expansion(tmp_path: Path) -> None:
         """
       bindings:
         range: [0, 2]
-        enum:
-          - bar
-          - baz
+        enum: [bar, baz]
+        string: "foo"
       schema:
         - type: image
           format: png
-          path: foo-{$enum}-{$range}.png
+          path: "{$string}-{$enum}-{$range}.png"
     """
     )
     assert set(schema.validate_(root_dir=tmp_path).errors) == {
