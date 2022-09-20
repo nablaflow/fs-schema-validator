@@ -5,7 +5,7 @@ from typing import Annotated, Dict, Literal, NamedTuple, Optional, Type, Union, 
 
 import orjson
 import pydantic
-from pydantic import BaseModel, Field, StrictBool, confloat, conint, conlist, constr
+from pydantic import BaseModel, Field, StrictBool, confloat, conint, conlist, constr, Extra
 
 from fs_schema_validator.report import ValidationReport
 from fs_schema_validator.string_expander.values import Bindings
@@ -25,7 +25,7 @@ JsonValue = Annotated[
 ]
 
 
-class JsonFloat(BaseModel):
+class JsonFloat(BaseModel, extra=Extra.forbid):
     type: Literal["float"]
     minimum: Optional[float] = None
     exclusive_minimum: Optional[float] = None
@@ -44,14 +44,14 @@ class JsonFloat(BaseModel):
         )
 
 
-class JsonBool(BaseModel):
+class JsonBool(BaseModel, extra=Extra.forbid):
     type: Literal["bool"]
 
     def gen_schema(self) -> Type:
         return StrictBool
 
 
-class JsonInt(BaseModel):
+class JsonInt(BaseModel, extra=Extra.forbid):
     type: Literal["int"]
     minimum: Optional[int] = None
     exclusive_minimum: Optional[int] = None
@@ -70,7 +70,7 @@ class JsonInt(BaseModel):
         )
 
 
-class JsonString(BaseModel):
+class JsonString(BaseModel, extra=Extra.forbid):
     type: Literal["str"]
     min_length: Optional[int] = None
     max_length: Optional[int] = None
@@ -85,7 +85,7 @@ class JsonString(BaseModel):
         )
 
 
-class JsonArray(BaseModel):
+class JsonArray(BaseModel, extra=Extra.forbid):
     type: Literal["array"]
     items: JsonValue
     min_items: Optional[int] = None
@@ -101,7 +101,7 @@ class JsonArray(BaseModel):
         )
 
 
-class JsonFixedArray(BaseModel):
+class JsonFixedArray(BaseModel, extra=Extra.forbid):
     type: Literal["fixed_array"]
     items: conlist(item_type=JsonValue, min_items=1)  # type: ignore[valid-type]
 
@@ -119,7 +119,7 @@ class JsonFixedArray(BaseModel):
         )
 
 
-class JsonObject(BaseModel):
+class JsonObject(BaseModel, extra=Extra.forbid):
     type: Literal["object"]
     attrs: Dict[str, JsonValue]
 
@@ -133,7 +133,7 @@ JsonFixedArray.update_forward_refs()
 JsonObject.update_forward_refs()
 
 
-class JsonSchema(BaseModel):
+class JsonSchema(BaseModel, extra=Extra.forbid):
     type: Literal["json"]
     path: Path
     spec: JsonValue
