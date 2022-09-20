@@ -81,7 +81,7 @@ def validate(
         click.echo(f"Inspected {report.count()} files.")
         click.echo()
 
-    for valid_path in report.valid_paths:
+    for valid_path in sorted(report.valid_paths):
         click.secho(f"✅ {valid_path}", fg="green")
 
     if report.okay():
