@@ -51,7 +51,7 @@ class Enum:
     variants: SortedSet
 
     @validator("variants", pre=True)
-    def coerce_into_sorted_set(cls, v):
+    def coerce_into_sorted_set(cls, v: Any) -> Any:
         if isinstance(v, set):
             return SortedSet(v)
 
