@@ -142,7 +142,7 @@ class JsonDict(BaseModel, extra=Extra.forbid):
     type: Literal["dict"]
     keys: JsonValue
     values: JsonValue
-    # TODO:
+    # TODO: allow items count constraints
     #  min_items: Optional[int] = None
     #  max_items: Optional[int] = None
 
