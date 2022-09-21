@@ -101,6 +101,51 @@ def test_expansion_escaping(tmp_path: Path) -> None:
     assert schema.validate_(root_dir=tmp_path).errors == []
 
 
+def test_nullable_properties(tmp_path: Path) -> None:
+    json_path = tmp_path / "file.json"
+    json_path.write_bytes(orjson.dumps({}))
+
+    schema = Schema.from_yaml(
+        """
+      schema:
+        - type: json
+          path: file.json
+          spec:
+            type: object
+            attrs:
+              foo:
+                type: string
+                nullable: true
+    """
+    )
+
+    assert schema.validate_(root_dir=tmp_path).errors == []
+
+    json_path.write_bytes(orjson.dumps({"foo": None}))
+
+    assert schema.validate_(root_dir=tmp_path).errors == []
+
+
+def test_nullable_items_in_array(tmp_path: Path) -> None:
+    json_path = tmp_path / "file.json"
+    json_path.write_bytes(orjson.dumps([1, 2, 3, None]))
+
+    schema = Schema.from_yaml(
+        """
+      schema:
+        - type: json
+          path: file.json
+          spec:
+            type: array
+            items:
+              type: int
+              nullable: true
+    """
+    )
+
+    assert schema.validate_(root_dir=tmp_path).errors == []
+
+
 def test_missing(schema: Schema, tmp_path: Path) -> None:
     assert schema.validate_(root_dir=tmp_path).errors == [
         ValidationError(path=Path("file.json"), reason="does not exist")

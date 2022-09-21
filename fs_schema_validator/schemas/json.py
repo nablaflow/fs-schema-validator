@@ -42,23 +42,28 @@ class JsonFloat(BaseModel, extra=Extra.forbid):
     max: Optional[float] = None
     exclusive_max: Optional[float] = None
     multiple_of: Optional[float] = None
+    nullable: bool = False
 
     def gen_schema(self) -> Type:
-        return confloat(
-            strict=True,
-            ge=self.min,
-            le=self.max,
-            gt=self.exclusive_min,
-            lt=self.exclusive_max,
-            multiple_of=self.multiple_of,
+        return _wrap_nullable(
+            confloat(
+                strict=True,
+                ge=self.min,
+                le=self.max,
+                gt=self.exclusive_min,
+                lt=self.exclusive_max,
+                multiple_of=self.multiple_of,
+            ),
+            self.nullable,
         )
 
 
 class JsonBool(BaseModel, extra=Extra.forbid):
     type: Literal["bool", "boolean"]
+    nullable: bool = False
 
     def gen_schema(self) -> Type:
-        return StrictBool
+        return _wrap_nullable(StrictBool, self.nullable)
 
 
 class JsonInt(BaseModel, extra=Extra.forbid):
@@ -68,15 +73,19 @@ class JsonInt(BaseModel, extra=Extra.forbid):
     max: Optional[int] = None
     exclusive_max: Optional[int] = None
     multiple_of: Optional[int] = None
+    nullable: bool = False
 
     def gen_schema(self) -> Type:
-        return conint(
-            strict=True,
-            ge=self.min,
-            le=self.max,
-            gt=self.exclusive_min,
-            lt=self.exclusive_max,
-            multiple_of=self.multiple_of,
+        return _wrap_nullable(
+            conint(
+                strict=True,
+                ge=self.min,
+                le=self.max,
+                gt=self.exclusive_min,
+                lt=self.exclusive_max,
+                multiple_of=self.multiple_of,
+            ),
+            self.nullable,
         )
 
 
@@ -85,13 +94,17 @@ class JsonString(BaseModel, extra=Extra.forbid):
     min_length: Optional[int] = None
     max_length: Optional[int] = None
     regex: Optional[str] = None
+    nullable: bool = False
 
     def gen_schema(self) -> Type:
-        return constr(
-            strict=True,
-            min_length=self.min_length,
-            max_length=self.max_length,
-            regex=self.regex,
+        return _wrap_nullable(
+            constr(
+                strict=True,
+                min_length=self.min_length,
+                max_length=self.max_length,
+                regex=self.regex,
+            ),
+            self.nullable,
         )
 
 
@@ -101,56 +114,83 @@ class JsonArray(BaseModel, extra=Extra.forbid):
     min_items: Optional[int] = None
     max_items: Optional[int] = None
     unique_items: Optional[bool] = None
+    nullable: bool = False
 
     def gen_schema(self) -> Type:
-        return conlist(
-            item_type=self.items.gen_schema(),
-            min_items=self.min_items,
-            max_items=self.max_items,
-            unique_items=self.unique_items,
+        return _wrap_nullable(
+            conlist(
+                item_type=self.items.gen_schema(),
+                min_items=self.min_items,
+                max_items=self.max_items,
+                unique_items=self.unique_items,
+            ),
+            self.nullable,
         )
 
 
 class JsonFixedArray(BaseModel, extra=Extra.forbid):
     type: Literal["fixed_array", "tuple"]
     items: conlist(item_type=JsonValue, min_items=1)  # type: ignore[valid-type]
+    nullable: bool = False
 
     def gen_schema(self) -> Type:
         # TODO: how to generate a Tuple[t0, t1, ..] type?
-        return cast(
-            Type,
-            NamedTuple(
-                "tuple",
-                [
-                    (str(f"element_{i}"), item.gen_schema())
-                    for i, item in enumerate(self.items)
-                ],
+        return _wrap_nullable(
+            cast(
+                Type,
+                NamedTuple(
+                    "tuple",
+                    [
+                        (str(f"element_{i}"), item.gen_schema())
+                        for i, item in enumerate(self.items)
+                    ],
+                ),
             ),
+            self.nullable,
         )
 
 
 class JsonObject(BaseModel, extra=Extra.forbid):
     type: Literal["object"]
     attrs: Dict[str, JsonValue]
+    nullable: bool = False
 
     def gen_schema(self) -> Type:
-        kwargs = {k: (v.gen_schema(), ...) for k, v in self.attrs.items()}
-        return pydantic.create_model("JsonObject", **kwargs)  # type: ignore[call-overload]
+        kwargs = {
+            k: (v.gen_schema(), ... if not v.nullable else None)
+            for k, v in self.attrs.items()
+        }
+
+        return _wrap_nullable(
+            pydantic.create_model("JsonObject", **kwargs),  # type: ignore[call-overload]
+            self.nullable,
+        )
 
 
 class JsonDict(BaseModel, extra=Extra.forbid):
     type: Literal["dict"]
     keys: JsonValue
     values: JsonValue
+    nullable: bool = False
     # TODO: allow items count constraints
     #  min_items: Optional[int] = None
     #  max_items: Optional[int] = None
 
     def gen_schema(self) -> Type:
-        return Dict[
-            self.keys.gen_schema(),
-            self.values.gen_schema(),
-        ]
+        return _wrap_nullable(
+            Dict[  # type: ignore[misc]
+                self.keys.gen_schema(),
+                self.values.gen_schema(),
+            ],  # type: ignore[index]
+            self.nullable,
+        )
+
+
+def _wrap_nullable(t: Type, nullable: bool) -> Type:
+    if nullable:
+        return cast(Type, Optional[t])
+    else:
+        return t
 
 
 JsonArray.update_forward_refs()
