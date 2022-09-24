@@ -9,7 +9,7 @@
 
   outputs = { self, nixpkgs, flake-utils, poetry2nix }:
     {
-      overlay = nixpkgs.lib.composeManyExtensions [
+      overlays.default = nixpkgs.lib.composeManyExtensions [
         poetry2nix.overlay
         (final: prev: {
           devEnv = prev.poetry2nix.mkPoetryEnv {
@@ -25,11 +25,11 @@
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ self.overlay ];
+          overlays = [ self.overlays.default ];
         };
       in
       {
-        devShell = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
           buildInputs = [
             pkgs.devEnv
             pkgs.poetry
