@@ -26,6 +26,9 @@ rich = "^12.5.1"
 types-pillow = "^9.2.0"
 types-pyyaml = "^6.0"
 
+[tool.poetry.scripts]
+validate_schema = 'fs_schema_validator.__main__:validate'
+
 [tool.pytest.ini_options]
 addopts = "-vv"
 pythonpath = "."
