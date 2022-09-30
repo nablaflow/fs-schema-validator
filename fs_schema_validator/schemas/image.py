@@ -4,6 +4,7 @@ from typing import Literal
 
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
+from svgelements import SVG
 
 from fs_schema_validator.report import ValidationReport
 from fs_schema_validator.string_expander.values import Bindings, String
@@ -15,6 +16,7 @@ class ImageFormat(Enum):
     PNG = "png"
     WEBP = "webp"
     JPEG = "jpeg"
+    SVG = "svg"
 
     def to_pillow_format(self) -> str:
         return self.value.upper()
@@ -34,6 +36,23 @@ class ImageSchema(BaseModel):
         if not _assert_path_exists(root_dir, self.path, report):
             return False
 
+        if self.format is ImageFormat.SVG:
+            return self._validate_svg(root_dir, report)
+        else:
+            return self._validate_raster(root_dir, report)
+
+    def _validate_svg(self, root_dir: Path, report: ValidationReport) -> bool:
+        try:
+            SVG.parse(root_dir / self.path)
+        except Exception as ex:
+            report.append(
+                path=self.path, reason=f"file does not contain a valid svg ({ex})"
+            )
+            return False
+
+        return True
+
+    def _validate_raster(self, root_dir: Path, report: ValidationReport) -> bool:
         try:
             with Image.open(root_dir / self.path) as im:
                 if im.format is None:

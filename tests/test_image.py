@@ -12,6 +12,7 @@ def test_ok(schema: Schema, tmp_path: Path) -> None:
     (tmp_path / "image.png").symlink_to(FIXTURES_DIR / "image.png")
     (tmp_path / "image.webp").symlink_to(FIXTURES_DIR / "image.webp")
     (tmp_path / "image.jpg").symlink_to(FIXTURES_DIR / "image.jpg")
+    (tmp_path / "image.svg").symlink_to(FIXTURES_DIR / "image.svg")
 
     assert schema.validate_(root_dir=tmp_path).errors == []
 
@@ -21,6 +22,7 @@ def test_missing(schema: Schema, tmp_path: Path) -> None:
         ValidationError(path=Path("image.png"), reason="does not exist"),
         ValidationError(path=Path("image.webp"), reason="does not exist"),
         ValidationError(path=Path("image.jpg"), reason="does not exist"),
+        ValidationError(path=Path("image.svg"), reason="does not exist"),
     ]
 
 
@@ -28,6 +30,7 @@ def test_fail(schema: Schema, tmp_path: Path) -> None:
     (tmp_path / "image.png").symlink_to(FIXTURES_DIR / "image.webp")
     (tmp_path / "image.webp").symlink_to(FIXTURES_DIR / "image.jpg")
     (tmp_path / "image.jpg").symlink_to(FIXTURES_DIR / "image.png")
+    (tmp_path / "image.svg").symlink_to(FIXTURES_DIR / "image.png")
 
     assert schema.validate_(root_dir=tmp_path).errors == [
         ValidationError(
@@ -38,6 +41,10 @@ def test_fail(schema: Schema, tmp_path: Path) -> None:
         ),
         ValidationError(
             path=Path("image.jpg"), reason="image is not in jpeg format (got png)"
+        ),
+        ValidationError(
+            path=Path("image.svg"),
+            reason="file does not contain a valid svg (not well-formed (invalid token): line 1, column 0)",
         ),
     ]
 
@@ -56,5 +63,8 @@ def schema() -> Schema:
         - type: image
           format: jpeg
           path: image.jpg
+        - type: image
+          format: svg
+          path: image.svg
     """
     )

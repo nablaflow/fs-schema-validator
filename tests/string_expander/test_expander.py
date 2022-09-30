@@ -12,6 +12,7 @@ def test_without_placeholders() -> None:
 def test_enum_placeholder() -> None:
     assert {"foo-bar"} == set(expand("foo-{bar}"))
     assert {"foo-bar", "foo-baz"} == set(expand("foo-{bar|baz}"))
+    assert {"foo-0", "foo-2", "foo-4"} == set(expand("foo-{0|2|4}"))
 
 
 def test_escaping() -> None:

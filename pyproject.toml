@@ -16,11 +16,12 @@ pydantic = "^1.10.2"
 pygltflib = "^1.15.3"
 pyyaml = "^6.0"
 sortedcontainers = "^2.4.0"
+svgelements = "^1.8.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.8.0"
 isort = "^5.10.1"
-mypy = "^0.971"
+mypy = "^0.981"
 pytest = "^7.1.3"
 rich = "^12.5.1"
 types-pillow = "^9.2.0"
@@ -64,6 +65,7 @@ module = [
     "parsita",
     "pygltflib",
     "sortedcontainers",
+    "svgelements",
 ]
 ignore_missing_imports = true
 
