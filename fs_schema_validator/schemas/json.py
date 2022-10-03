@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Dict, Literal, NamedTuple, Optional, Type, Union, cast
+from typing import Annotated, Dict, Literal, Optional, Tuple, Type, Union, cast
 
 import orjson
 import pydantic
@@ -134,18 +134,8 @@ class JsonFixedArray(BaseModel, extra=Extra.forbid):
     nullable: bool = False
 
     def gen_schema(self) -> Type:
-        # TODO: how to generate a Tuple[t0, t1, ..] type?
         return _wrap_nullable(
-            cast(
-                Type,
-                NamedTuple(
-                    "tuple",
-                    [
-                        (str(f"element_{i}"), item.gen_schema())
-                        for i, item in enumerate(self.items)
-                    ],
-                ),
-            ),
+            cast(Type, Tuple[tuple((v.gen_schema() for v in self.items))]),
             self.nullable,
         )
 
