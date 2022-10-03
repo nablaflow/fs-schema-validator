@@ -6,7 +6,6 @@ bindings:
   compression: ["", _uncompressed]
   image_formats: [png, webp]
 schema:
-  # TODO
   - path: output_{$yaw_angle_idx}/plot_slices_results.json
     type: json
     spec:
