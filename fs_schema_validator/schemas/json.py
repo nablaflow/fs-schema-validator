@@ -31,6 +31,7 @@ JsonValue = Annotated[
         "JsonDict",
         "JsonString",
         "JsonEnum",
+        "JsonLiteral",
     ],
     Field(discriminator="type"),
 ]
@@ -189,6 +190,15 @@ class JsonEnum(BaseModel, extra=Extra.forbid):
         )
 
 
+class JsonLiteral(BaseModel, extra=Extra.forbid):
+    type: Literal["literal"]
+    value: Union[constr(strict=True), conint(strict=True), confloat(strict=True)]  # type: ignore[valid-type]
+    nullable: bool = False
+
+    def gen_schema(self) -> Type:
+        return _wrap_nullable(cast(Type, Literal[self.value]), self.nullable)
+
+
 def _wrap_nullable(t: Type, nullable: bool) -> Type:
     if nullable:
         return cast(Type, Optional[t])
@@ -200,6 +210,7 @@ JsonArray.update_forward_refs()
 JsonFixedArray.update_forward_refs()
 JsonDict.update_forward_refs()
 JsonObject.update_forward_refs()
+JsonEnum.update_forward_refs()
 
 
 class JsonSchema(BaseModel, extra=Extra.forbid):

@@ -32,6 +32,10 @@ def test_ok(schema: Schema, tmp_path: Path) -> None:
                     "bar": 2,
                 },
                 "enum": "foo",
+                "literal_str": "foo",
+                "literal_int": 5,
+                "literal_float": 5.5,
+                "enum2": "foo",
             }
         )
     )
@@ -197,6 +201,11 @@ def test_missing(schema: Schema, tmp_path: Path) -> None:
         ({"dict_": {"foo": "bar"}}, "`dict_.foo`: value is not a valid integer"),
         ({"enum": 9.8}, "`enum`: value is not a valid integer"),
         ({"enum": 9.8}, "`enum`: str type expected"),
+        ({"literal_str": 9.8}, "`literal_str`: unexpected value; permitted: 'foo'"),
+        ({"literal_int": 9.8}, "`literal_int`: unexpected value; permitted: 5"),
+        ({"literal_float": 2}, "`literal_float`: unexpected value; permitted: 5.5"),
+        ({"enum2": "baz"}, "`enum2`: unexpected value; permitted: 'foo'"),
+        ({"enum2": "baz"}, "`enum2`: unexpected value; permitted: 'bar'"),
     ],
 )
 def test_fail(
@@ -282,7 +291,23 @@ def schema() -> Schema:
               enum:
                 type: enum
                 variants:
-                  - type: integer
-                  - type: string
+                  - type: int
+                  - type: str
+              literal_str:
+                type: literal
+                value: "foo"
+              literal_int:
+                type: literal
+                value: 5
+              literal_float:
+                type: literal
+                value: 5.5
+              enum2:
+                type: enum
+                variants:
+                  - type: literal
+                    value: "foo"
+                  - type: literal
+                    value: "bar"
     """
     )
