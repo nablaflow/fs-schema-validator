@@ -31,6 +31,7 @@ def test_ok(schema: Schema, tmp_path: Path) -> None:
                     "foo": 1,
                     "bar": 2,
                 },
+                "enum": "foo",
             }
         )
     )
@@ -194,6 +195,8 @@ def test_missing(schema: Schema, tmp_path: Path) -> None:
         ({"nested": {}}, "`nested.float`: field required"),
         ({"nested": {"float": "2"}}, "`nested.float`: value is not a valid float"),
         ({"dict_": {"foo": "bar"}}, "`dict_.foo`: value is not a valid integer"),
+        ({"enum": 9.8}, "`enum`: value is not a valid integer"),
+        ({"enum": 9.8}, "`enum`: str type expected"),
     ],
 )
 def test_fail(
@@ -276,5 +279,10 @@ def schema() -> Schema:
                   type: string
                 values:
                   type: int
+              enum:
+                type: enum
+                variants:
+                  - type: integer
+                  - type: string
     """
     )

@@ -30,6 +30,7 @@ JsonValue = Annotated[
         "JsonObject",
         "JsonDict",
         "JsonString",
+        "JsonEnum",
     ],
     Field(discriminator="type"),
 ]
@@ -172,6 +173,18 @@ class JsonDict(BaseModel, extra=Extra.forbid):
                 self.keys.gen_schema(),
                 self.values.gen_schema(),
             ],  # type: ignore[index]
+            self.nullable,
+        )
+
+
+class JsonEnum(BaseModel, extra=Extra.forbid):
+    type: Literal["enum"]
+    variants: conlist(item_type=JsonValue, min_items=1)  # type: ignore[valid-type]
+    nullable: bool = False
+
+    def gen_schema(self) -> Type:
+        return _wrap_nullable(
+            cast(Type, Union[tuple((v.gen_schema() for v in self.variants))]),
             self.nullable,
         )
 
