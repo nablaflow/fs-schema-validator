@@ -21,9 +21,9 @@ svgelements = "^1.8.4"
 [tool.poetry.group.dev.dependencies]
 black = "^22.8.0"
 isort = "^5.10.1"
-mypy = "^0.981"
+mypy = "^0.982"
 pytest = "^7.1.3"
-rich = "^12.5.1"
+rich = "^12.6.0"
 types-pillow = "^9.2.0"
 types-pyyaml = "^6.0"
 
