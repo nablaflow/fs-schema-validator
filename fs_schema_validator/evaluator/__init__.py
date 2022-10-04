@@ -1,8 +1,8 @@
 import itertools
 from typing import Iterator
 
-from .parser import parse_template
-from .values import Bindings, Expandable
+from .parser import parse_expression, parse_template
+from .values import Bindings, EvaluationResult, Expandable
 
 
 def expand(
@@ -16,3 +16,7 @@ def expand(
             *[value.expand(bindings, leave_unbound_vars_in) for value in values]
         ),
     )
+
+
+def evaluate(s: str, bindings: Bindings = {}) -> EvaluationResult:
+    return parse_expression(s).eval(bindings)

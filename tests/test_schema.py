@@ -99,3 +99,35 @@ def test_expansion_not_in_paths(tmp_path: Path) -> None:
         ValidationError(path=Path("bar.webp"), reason="does not exist"),
         ValidationError(path=Path("bar.png"), reason="does not exist"),
     }
+
+
+def test_if_expression_skip(tmp_path: Path) -> None:
+    schema = Schema.from_yaml(
+        """
+      bindings:
+        foo: "bar"
+      schema:
+        - type: image
+          format: png
+          path: missing.png
+          if: $foo == foo
+    """
+    )
+    assert schema.validate_(root_dir=tmp_path).errors == []
+
+
+def test_if_expression(tmp_path: Path) -> None:
+    schema = Schema.from_yaml(
+        """
+      bindings:
+        foo: "bar"
+      schema:
+        - type: image
+          format: png
+          path: missing.png
+          if: $foo == bar
+    """
+    )
+    assert schema.validate_(root_dir=tmp_path).errors == [
+        ValidationError(path=Path("missing.png"), reason="does not exist"),
+    ]

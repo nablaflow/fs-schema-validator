@@ -4,7 +4,18 @@ from parsita import ParseError, TextParsers, lit, opt, reg, rep1, rep1sep
 from pydantic import parse_obj_as
 from sortedcontainers import SortedSet
 
-from .values import Assignment, Binding, Enum, Expansion, Range, String, Template
+from .values import (
+    Assignment,
+    Binding,
+    BooleanExpr,
+    Enum,
+    Expansion,
+    Expression,
+    Operator,
+    Range,
+    String,
+    Template,
+)
 
 __all__ = [
     "ParseError",
@@ -32,11 +43,19 @@ class TemplateParsers(TextParsers):  # type: ignore[misc]
         lit("") > (lambda s: [String(s)])
     )
 
+    op = (lit("==") | lit("!=")) > Operator
+    boolean_op = (binding & op & string) > (lambda t: BooleanExpr(t[0], t[1], t[2]))
+    expression = boolean_op
+
     assignment = (symbol << "=" & (range | enum)) > (lambda t: (t[0], t[1]))
 
 
 def parse_template(s: str) -> Template:
     return parse_obj_as(Template, TemplateParsers.template.parse(s).or_die())
+
+
+def parse_expression(s: str) -> Expression:
+    return parse_obj_as(Expression, TemplateParsers.expression.parse(s).or_die())
 
 
 def parse_assignment(s: str) -> Assignment:

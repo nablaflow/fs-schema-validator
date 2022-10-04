@@ -44,6 +44,7 @@ schema:
   - type: gltf
     format: glb
     path: asset-{$range}-{$enum}.glb
+    if: $var == true
 
   - type: json
     path: info.json

@@ -1,3 +1,4 @@
+import enum
 from typing import Any, Dict, Iterator, List, NewType, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, validator
@@ -19,6 +20,9 @@ class String:
     ) -> Iterator[str]:
         return iter([self.string])
 
+    def eval(self, _bindings: "Bindings") -> str:
+        return self.string
+
     def __str__(self) -> str:
         return self.string
 
@@ -33,12 +37,16 @@ class Binding:
         leave_unbound_vars_in: bool = False,
         format: Optional[str] = None,
     ) -> Iterator[str]:
+        return self._lookup(bindings).expand(bindings, leave_unbound_vars_in, format)
+
+    def eval(self, bindings: "Bindings") -> "Expandable":
+        return self._lookup(bindings)
+
+    def _lookup(self, bindings: "Bindings") -> "Expandable":
         try:
-            binding = bindings[self.ident]
+            return bindings[self.ident]
         except KeyError:
             raise UnboundSymbol(f"no value provided for binding `{self.ident}`")
-
-        return binding.expand(bindings, leave_unbound_vars_in, format)
 
     def __str__(self) -> str:
         return f"${self.ident}"
@@ -122,3 +130,30 @@ Template = NewType("Template", List[Union[String, Expansion]])
 Expandable = Union[String, Enum, Range]
 Bindings = Dict[str, Expandable]
 Assignment = NewType("Assignment", Tuple[str, Expandable])
+
+
+@enum.unique
+class Operator(enum.Enum):
+    EQ = "=="
+    NEQ = "!="
+
+
+@dataclass(frozen=True, config=ConfigDict(validate_assignment=True))
+class BooleanExpr:
+    left: Binding
+    op: Operator
+    right: String
+
+    def eval(self, bindings: Bindings) -> "EvaluationResult":
+        left = self.left.eval(bindings)
+
+        if self.op is Operator.EQ:
+            return left == self.right
+        elif self.op is Operator.NEQ:
+            return left != self.right
+        else:
+            raise NotImplementedError(f"don't know how to eval operator {self.op}")
+
+
+Expression = BooleanExpr
+EvaluationResult = Union[bool]

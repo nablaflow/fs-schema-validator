@@ -3,9 +3,18 @@ import pytest
 from fs_schema_validator.evaluator.parser import (
     ParseError,
     parse_assignment,
+    parse_expression,
     parse_template,
 )
-from fs_schema_validator.evaluator.values import Binding, Enum, Expansion, Range, String
+from fs_schema_validator.evaluator.values import (
+    Binding,
+    BooleanExpr,
+    Enum,
+    Expansion,
+    Operator,
+    Range,
+    String,
+)
 
 
 def test_template() -> None:
@@ -66,6 +75,21 @@ def test_binding() -> None:
 
 def test_with_format() -> None:
     assert [Expansion(Binding("foo"), format="02")] == parse_template("{$foo:02}")
+
+
+def test_boolean_expression() -> None:
+    assert BooleanExpr(Binding("foo"), Operator.EQ, String("bar")) == parse_expression(
+        "$foo == bar"
+    )
+    assert BooleanExpr(Binding("foo"), Operator.EQ, String("bar")) == parse_expression(
+        "$foo==bar"
+    )
+    assert BooleanExpr(Binding("foo"), Operator.NEQ, String("bar")) == parse_expression(
+        "$foo != bar"
+    )
+    assert BooleanExpr(Binding("foo"), Operator.NEQ, String("bar")) == parse_expression(
+        "$foo!=bar"
+    )
 
 
 def test_binding_fail() -> None:

@@ -36,6 +36,13 @@ UntypedBindings = Annotated[
     Dict[str, Union[Tuple[int, int], Set[str], str]], Field(default_factory=dict)
 ]
 
+UntypedValidator = Dict[str, Any]
+
+
+class UntypedSchema(BaseModel):
+    validators: List[UntypedValidator] = Field(alias="schema")
+    bindings: UntypedBindings
+
 
 class Schema(BaseModel):
     validators: List[Validator]
@@ -45,19 +52,20 @@ class Schema(BaseModel):
         f: Union[str, bytes, "SupportsRead[str]", "SupportsRead[bytes]"],
         extra_bindings: Bindings = {},
     ) -> Schema:
-        class UntypedSchema(BaseModel):
-            validators: List[Dict[str, Any]] = Field(alias="schema")
-            bindings: UntypedBindings
 
         untyped_schema = UntypedSchema(**yaml.safe_load(f))
 
         bindings = {**_type_bindings(untyped_schema.bindings), **extra_bindings}
 
+        filtered_untyped_validators = list(
+            _filter_validators_via_evaluation(untyped_schema.validators, bindings)
+        )
+
         expanded_untyped_validators = list(
             chain.from_iterable(
                 (
                     _expand_untyped_validator(untyped_validator, bindings)
-                    for untyped_validator in untyped_schema.validators
+                    for untyped_validator in filtered_untyped_validators
                 )
             )
         )
@@ -127,3 +135,17 @@ def _expand_any(value: Any, bindings: Bindings) -> Iterator[Any]:
             len(yamls) == 1
         ), "cannot expand to more than one variant when dealing with nested object"
         return iter([yaml.safe_load(StringIO(yamls[0]))])
+
+
+def _filter_validators_via_evaluation(
+    validators: List[UntypedValidator], bindings: Bindings
+) -> Iterator[UntypedValidator]:
+    for v in validators:
+        if "if" in v:
+            if_ = v["if"]
+            del v["if"]
+
+            if evaluator.evaluate(if_, bindings) == True:
+                yield v
+        else:
+            yield v
