@@ -1,10 +1,4 @@
-from fs_schema_validator.string_expander.values import (
-    Binding,
-    Enum,
-    Expansion,
-    Range,
-    String,
-)
+from fs_schema_validator.evaluator.values import Binding, Enum, Expansion, Range, String
 
 
 def test_expansion_str() -> None:

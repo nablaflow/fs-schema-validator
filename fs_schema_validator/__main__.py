@@ -8,8 +8,8 @@ import click
 import pydantic
 
 from fs_schema_validator import Schema
-from fs_schema_validator.string_expander.parser import ParseError, parse_assignment
-from fs_schema_validator.string_expander.values import Assignment
+from fs_schema_validator.evaluator.parser import ParseError, parse_assignment
+from fs_schema_validator.evaluator.values import Assignment
 
 
 class BindingParamType(click.ParamType):

@@ -1,8 +1,8 @@
 import pytest
 
-from fs_schema_validator.string_expander import expand
-from fs_schema_validator.string_expander.errors import UnboundSymbol
-from fs_schema_validator.string_expander.values import Enum, Range
+from fs_schema_validator.evaluator import expand
+from fs_schema_validator.evaluator.errors import UnboundSymbol
+from fs_schema_validator.evaluator.values import Enum, Range
 
 
 def test_without_placeholders() -> None:

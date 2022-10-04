@@ -6,8 +6,8 @@ from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
 from svgelements import SVG
 
+from fs_schema_validator.evaluator.values import Bindings, String
 from fs_schema_validator.report import ValidationReport
-from fs_schema_validator.string_expander.values import Bindings, String
 from fs_schema_validator.utils import _assert_path_exists
 
 

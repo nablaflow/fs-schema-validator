@@ -13,13 +13,13 @@ from pydantic import BaseModel, Field, parse_obj_as
 if typing.TYPE_CHECKING:
     from _typeshed import SupportsRead
 
-import fs_schema_validator.string_expander as string_expander
+import fs_schema_validator.evaluator as evaluator
+from fs_schema_validator.evaluator.values import Bindings, Enum, Range, String
 from fs_schema_validator.report import ValidationReport
 from fs_schema_validator.schemas.file import FileSchema
 from fs_schema_validator.schemas.gltf import GltfSchema
 from fs_schema_validator.schemas.image import ImageSchema
 from fs_schema_validator.schemas.json import JsonSchema
-from fs_schema_validator.string_expander.values import Bindings, Enum, Range, String
 
 Validator = Annotated[
     Union[
@@ -76,7 +76,7 @@ class Schema(BaseModel):
 
 
 def _expand_path(validator: Validator) -> Validator:
-    path = list(string_expander.expand(str(validator.path), validator.inner_bindings()))
+    path = list(evaluator.expand(str(validator.path), validator.inner_bindings()))
     assert (
         len(path) == 1
     ), "cannot expand to more than one variant when dealing with paths and a validator's inner bindings"
@@ -118,7 +118,7 @@ def _expand_untyped_validator(
 
 def _expand_any(value: Any, bindings: Bindings) -> Iterator[Any]:
     if isinstance(value, str):
-        return string_expander.expand(value, bindings, leave_unbound_vars_in=True)
+        return evaluator.expand(value, bindings, leave_unbound_vars_in=True)
     else:
         # TODO: this is a hack, figure out a way to easily evaluate a potential binding in a nested object
         yaml_ = yaml.safe_dump(value)

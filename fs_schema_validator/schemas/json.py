@@ -16,8 +16,8 @@ from pydantic import (
     constr,
 )
 
+from fs_schema_validator.evaluator.values import Bindings
 from fs_schema_validator.report import ValidationReport
-from fs_schema_validator.string_expander.values import Bindings
 from fs_schema_validator.utils import _assert_path_exists
 
 JsonValue = Annotated[

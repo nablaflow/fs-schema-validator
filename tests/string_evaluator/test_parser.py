@@ -1,17 +1,11 @@
 import pytest
 
-from fs_schema_validator.string_expander.parser import (
+from fs_schema_validator.evaluator.parser import (
     ParseError,
     parse_assignment,
     parse_template,
 )
-from fs_schema_validator.string_expander.values import (
-    Binding,
-    Enum,
-    Expansion,
-    Range,
-    String,
-)
+from fs_schema_validator.evaluator.values import Binding, Enum, Expansion, Range, String
 
 
 def test_template() -> None:

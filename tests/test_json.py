@@ -4,8 +4,8 @@ import orjson
 import pytest
 
 from fs_schema_validator import Schema
+from fs_schema_validator.evaluator.values import String
 from fs_schema_validator.report import ValidationError
-from fs_schema_validator.string_expander.values import String
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
