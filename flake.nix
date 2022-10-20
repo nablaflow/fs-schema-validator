@@ -4,7 +4,10 @@
   inputs = {
     nixpkgs = { url = "github:NixOS/nixpkgs/nixpkgs-unstable"; };
     flake-utils = { url = "github:numtide/flake-utils"; };
-    poetry2nix = { url = "github:nix-community/poetry2nix"; };
+    poetry2nix = {
+      url = "github:nix-community/poetry2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, flake-utils, poetry2nix }:
@@ -18,6 +21,19 @@
             editablePackageSources = {
               "fs_schema_validator" = ./fs_schema_validator;
             };
+
+            overrides = prev.poetry2nix.defaultPoetryOverrides.extend (self: super: {
+              types-pillow = super.types-pillow.overridePythonAttrs (
+                old: {
+                  buildInputs = (old.buildInputs or [ ]) ++ [ self.setuptools ];
+                }
+              );
+              svgelements = super.svgelements.overridePythonAttrs (
+                old: {
+                  buildInputs = (old.buildInputs or [ ]) ++ [ self.setuptools ];
+                }
+              );
+            });
           };
         })
       ];
