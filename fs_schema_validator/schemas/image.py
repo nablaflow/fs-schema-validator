@@ -4,7 +4,7 @@ from typing import Literal
 
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
-from svgelements import SVG
+from svglib.svglib import svg2rlg
 
 from fs_schema_validator.evaluator.values import Bindings, String
 from fs_schema_validator.report import ValidationReport
@@ -42,12 +42,8 @@ class ImageSchema(BaseModel):
             return self._validate_raster(root_dir, report)
 
     def _validate_svg(self, root_dir: Path, report: ValidationReport) -> bool:
-        try:
-            SVG.parse(root_dir / self.path)
-        except Exception as ex:
-            report.append(
-                path=self.path, reason=f"file does not contain a valid svg ({ex})"
-            )
+        if svg2rlg(root_dir / self.path) is None:
+            report.append(path=self.path, reason=f"file does not contain a valid svg")
             return False
 
         return True
