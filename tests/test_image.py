@@ -43,7 +43,8 @@ def test_fail(schema: Schema, tmp_path: Path) -> None:
             path=Path("image.jpg"), reason="image is not in jpeg format (got png)"
         ),
         ValidationError(
-            path=Path("image.svg"), reason="file does not contain a valid svg"
+            path=Path("image.svg"),
+            reason="file does not contain a valid svg (not well-formed (invalid token): line 1, column 0)",
         ),
     ]
 

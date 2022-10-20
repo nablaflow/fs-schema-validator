@@ -16,7 +16,7 @@ pydantic = "^1.10.2"
 pygltflib = "^1.15.3"
 pyyaml = "^6.0"
 sortedcontainers = "^2.4.0"
-svglib = "^1.4.1"
+svgelements = "^1.8.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.8.0"
@@ -62,10 +62,10 @@ plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
 module = [
-  "parsita",
-  "pygltflib",
-  "sortedcontainers",
-  "svglib.svglib",
+    "parsita",
+    "pygltflib",
+    "sortedcontainers",
+    "svgelements",
 ]
 ignore_missing_imports = true
 
