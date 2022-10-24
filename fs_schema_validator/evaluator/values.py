@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, validator
 from pydantic.dataclasses import dataclass
 from sortedcontainers import SortedSet
 
-from .errors import UnboundSymbol
+from .errors import CoercionError, UnboundSymbol
 
 
 @dataclass(frozen=True, config=ConfigDict(validate_assignment=True))
@@ -25,6 +25,9 @@ class String:
 
     def __str__(self) -> str:
         return self.string
+
+    def coerce_to_string(self) -> "String":
+        return self
 
 
 @dataclass(frozen=True, config=ConfigDict(validate_assignment=True))
@@ -76,6 +79,14 @@ class Enum:
     def __str__(self) -> str:
         return "|".join(self.variants)
 
+    def coerce_to_string(self) -> String:
+        if len(self.variants) == 1:
+            return String(self.variants[0])
+        else:
+            raise CoercionError(
+                f"cannot coerce enum {{{self}}} into String: variants > 1"
+            )
+
 
 @dataclass(frozen=True, config=ConfigDict(validate_assignment=True))
 class Range:
@@ -92,6 +103,9 @@ class Range:
 
     def __str__(self) -> str:
         return f"{self.start}..{self.end}"
+
+    def coerce_to_string(self) -> String:
+        raise CoercionError(f"cannot coerce range {{{self}}} into String")
 
 
 @dataclass(frozen=True, config=ConfigDict(validate_assignment=True))
@@ -145,7 +159,7 @@ class BooleanExpr:
     right: String
 
     def eval(self, bindings: Bindings) -> "EvaluationResult":
-        left = self.left.eval(bindings)
+        left = self.left.eval(bindings).coerce_to_string()
 
         if self.op is Operator.EQ:
             return left == self.right
