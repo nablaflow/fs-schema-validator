@@ -52,7 +52,6 @@ class Schema(BaseModel):
         f: Union[str, bytes, "SupportsRead[str]", "SupportsRead[bytes]"],
         extra_bindings: Bindings = {},
     ) -> Schema:
-
         untyped_schema = UntypedSchema(**yaml.safe_load(f))
 
         bindings = {**_type_bindings(untyped_schema.bindings), **extra_bindings}
