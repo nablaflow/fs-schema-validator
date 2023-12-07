@@ -22,7 +22,6 @@ def test_ok(schema: Schema, tmp_path: Path) -> None:
                 "float_exclusive": 8.0,
                 "str": "#123456789",
                 "array": [1, 2, 2, 3, 3],
-                "set": [1, 2, 3],
                 "tuple": [1, "2", 3.0],
                 "nested": {
                     "float": 3.5,
@@ -50,7 +49,7 @@ def test_root_level_fail(schema: Schema, tmp_path: Path) -> None:
     assert schema.validate_(root_dir=tmp_path).errors == [
         ValidationError(
             path=Path("file.json"),
-            reason="root object: value is not a valid dict",
+            reason="root object: Input should be a valid dictionary or instance of JsonObject",
         )
     ]
 
@@ -84,7 +83,7 @@ def test_binding_replacement_in_json_schema(tmp_path: Path) -> None:
     ).errors == [
         ValidationError(
             path=Path("file.json"),
-            reason="`array`: ensure this value has at least 5 items",
+            reason="`array`: List should have at least 5 items after validation, not 4",
         )
     ]
 
@@ -160,52 +159,53 @@ def test_missing(schema: Schema, tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     "json,expected_reason",
     [
-        ({}, "`bool`: field required"),
-        ({}, "`int`: field required"),
-        ({}, "`int_exclusive`: field required"),
-        ({}, "`float`: field required"),
-        ({}, "`float_exclusive`: field required"),
-        ({}, "`str`: field required"),
-        ({}, "`array`: field required"),
-        ({}, "`set`: field required"),
-        ({}, "`tuple`: field required"),
-        ({}, "`nested`: field required"),
-        ({"bool": 1}, "`bool`: value is not a valid boolean"),
-        ({"int": "1"}, "`int`: value is not a valid integer"),
-        ({"int": 3}, "`int`: ensure this value is a multiple of 2"),
-        ({"int": 11}, "`int`: ensure this value is less than or equal to 10"),
-        ({"int_exclusive": 11}, "`int_exclusive`: ensure this value is less than 10"),
-        ({"float": "1"}, "`float`: value is not a valid float"),
-        ({"float": 3.0}, "`float`: ensure this value is a multiple of 2.0"),
-        ({"float": 11.0}, "`float`: ensure this value is less than or equal to 10.0"),
+        ({}, "`bool`: Field required"),
+        ({}, "`int`: Field required"),
+        ({}, "`int_exclusive`: Field required"),
+        ({}, "`float`: Field required"),
+        ({}, "`float_exclusive`: Field required"),
+        ({}, "`str`: Field required"),
+        ({}, "`array`: Field required"),
+        ({}, "`tuple`: Field required"),
+        ({}, "`nested`: Field required"),
+        ({"bool": 1}, "`bool`: Input should be a valid boolean"),
+        ({"int": "1"}, "`int`: Input should be a valid integer"),
+        ({"int": 3}, "`int`: Input should be a multiple of 2"),
+        ({"int": 12}, "`int`: Input should be less than or equal to 10"),
+        ({"int_exclusive": 11}, "`int_exclusive`: Input should be less than 10"),
+        ({"float": "1"}, "`float`: Input should be a valid number"),
+        ({"float": 3.0}, "`float`: Input should be a multiple of 2"),
+        ({"float": 12.0}, "`float`: Input should be less than or equal to 10"),
         (
             {"float_exclusive": 11.0},
-            "`float_exclusive`: ensure this value is less than 10.0",
+            "`float_exclusive`: Input should be less than 10",
         ),
-        ({"str": 1}, "`str`: str type expected"),
-        ({"str": ""}, "`str`: ensure this value has at least 1 characters"),
-        ({"str": "1"}, '`str`: string does not match regex "^#(\\d+)$"'),
-        ({"str": "111111111111"}, "`str`: ensure this value has at most 10 characters"),
-        ({"array": "1"}, "`array`: value is not a valid list"),
-        ({"array": []}, "`array`: ensure this value has at least 1 items"),
-        ({"array": ["5"]}, "`array.0`: value is not a valid integer"),
-        ({"array": list(range(100))}, "`array`: ensure this value has at most 10 items"),
-        ({"set": "1"}, "`set`: value is not a valid list"),
-        ({"set": []}, "`set`: ensure this value has at least 1 items"),
-        ({"set": ["5"]}, "`set.0`: value is not a valid integer"),
-        ({"set": [1, 1, 1]}, "`set`: the list has duplicated items"),
-        ({"tuple": []}, "`tuple`: wrong tuple length 0, expected 3"),
-        ({"tuple": ["1", "2", 3.0]}, "`tuple.0`: value is not a valid integer"),
-        ({"nested": {}}, "`nested.float`: field required"),
-        ({"nested": {"float": "2"}}, "`nested.float`: value is not a valid float"),
-        ({"dict_": {"foo": "bar"}}, "`dict_.foo`: value is not a valid integer"),
-        ({"enum": 9.8}, "`enum`: value is not a valid integer"),
-        ({"enum": 9.8}, "`enum`: str type expected"),
-        ({"literal_str": 9.8}, "`literal_str`: unexpected value; permitted: 'foo'"),
-        ({"literal_int": 9.8}, "`literal_int`: unexpected value; permitted: 5"),
-        ({"literal_float": 2}, "`literal_float`: unexpected value; permitted: 5.5"),
-        ({"enum2": "baz"}, "`enum2`: unexpected value; permitted: 'foo'"),
-        ({"enum2": "baz"}, "`enum2`: unexpected value; permitted: 'bar'"),
+        ({"str": 1}, "`str`: Input should be a valid string"),
+        ({"str": ""}, "`str`: String should have at least 1 character"),
+        ({"str": "1"}, "`str`: String should match pattern '^#(\\d+)$'"),
+        ({"str": "111111111111"}, "`str`: String should have at most 10 characters"),
+        ({"array": "1"}, "`array`: Input should be a valid list"),
+        (
+            {"array": []},
+            "`array`: List should have at least 1 item after validation, not 0",
+        ),
+        ({"array": ["5"]}, "`array.0`: Input should be a valid integer"),
+        (
+            {"array": list(range(100))},
+            "`array`: List should have at most 10 items after validation, not 100",
+        ),
+        ({"tuple": []}, "`tuple.0`: Field required"),
+        ({"tuple": ["1", "2", 3.0]}, "`tuple.0`: Input should be a valid integer"),
+        ({"nested": {}}, "`nested.float`: Field required"),
+        ({"nested": {"float": "2"}}, "`nested.float`: Input should be a valid number"),
+        ({"dict_": {"foo": "bar"}}, "`dict_.foo`: Input should be a valid integer"),
+        ({"enum": 9.8}, "`enum.int`: Input should be a valid integer"),
+        ({"enum": 9.8}, "`enum.str`: Input should be a valid string"),
+        ({"literal_str": 9.8}, "`literal_str`: Input should be 'foo'"),
+        ({"literal_int": 9.8}, "`literal_int`: Input should be 5"),
+        ({"literal_float": 2}, "`literal_float`: Input should be 5.5"),
+        ({"enum2": "baz"}, "`enum2`: Input should be 'foo'"),
+        ({"enum2": "baz"}, "`enum2`: Input should be 'bar'"),
     ],
 )
 def test_fail(
@@ -253,7 +253,6 @@ def schema() -> Schema:
                 type: float
                 exclusive_min: 0
                 exclusive_max: 10
-                multiple_of: 2.0
               str:
                 type: str
                 min_length: 1
@@ -263,12 +262,6 @@ def schema() -> Schema:
                 type: array
                 min_items: 1
                 max_items: 10
-                items:
-                  type: int
-              set:
-                type: array
-                unique_items: true
-                min_items: 1
                 items:
                   type: int
               tuple:

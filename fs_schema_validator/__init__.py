@@ -88,7 +88,7 @@ def _expand_path(validator: Validator) -> Validator:
         len(path) == 1
     ), "cannot expand to more than one variant when dealing with paths and a validator's inner bindings"
 
-    validator = validator.copy()
+    validator = validator.model_copy()
     validator.path = Path(path[0])
 
     return validator

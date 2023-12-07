@@ -10,9 +10,11 @@ from pydantic import (
     Extra,
     Field,
     StrictBool,
+    TypeAdapter,
     confloat,
     conint,
     conlist,
+    conset,
     constr,
 )
 
@@ -37,7 +39,7 @@ JsonValue = Annotated[
 ]
 
 
-class JsonFloat(BaseModel, extra=Extra.forbid):
+class JsonFloat(BaseModel, extra="forbid"):
     type: Literal["float"]
     min: Optional[float] = None
     exclusive_min: Optional[float] = None
@@ -60,7 +62,7 @@ class JsonFloat(BaseModel, extra=Extra.forbid):
         )
 
 
-class JsonBool(BaseModel, extra=Extra.forbid):
+class JsonBool(BaseModel, extra="forbid"):
     type: Literal["bool", "boolean"]
     nullable: bool = False
 
@@ -68,7 +70,7 @@ class JsonBool(BaseModel, extra=Extra.forbid):
         return _wrap_nullable(StrictBool, self.nullable)
 
 
-class JsonInt(BaseModel, extra=Extra.forbid):
+class JsonInt(BaseModel, extra="forbid"):
     type: Literal["int", "integer"]
     min: Optional[int] = None
     exclusive_min: Optional[int] = None
@@ -91,7 +93,7 @@ class JsonInt(BaseModel, extra=Extra.forbid):
         )
 
 
-class JsonString(BaseModel, extra=Extra.forbid):
+class JsonString(BaseModel, extra="forbid"):
     type: Literal["str", "string"]
     min_length: Optional[int] = None
     max_length: Optional[int] = None
@@ -104,35 +106,33 @@ class JsonString(BaseModel, extra=Extra.forbid):
                 strict=True,
                 min_length=self.min_length,
                 max_length=self.max_length,
-                regex=self.regex,
+                pattern=self.regex,
             ),
             self.nullable,
         )
 
 
-class JsonArray(BaseModel, extra=Extra.forbid):
+class JsonArray(BaseModel, extra="forbid"):
     type: Literal["array", "list"]
     items: JsonValue
     min_items: Optional[int] = None
     max_items: Optional[int] = None
-    unique_items: Optional[bool] = None
     nullable: bool = False
 
     def gen_schema(self) -> Type:
         return _wrap_nullable(
             conlist(
                 item_type=self.items.gen_schema(),
-                min_items=self.min_items,
-                max_items=self.max_items,
-                unique_items=self.unique_items,
+                min_length=self.min_items,
+                max_length=self.max_items,
             ),
             self.nullable,
         )
 
 
-class JsonFixedArray(BaseModel, extra=Extra.forbid):
+class JsonFixedArray(BaseModel, extra="forbid"):
     type: Literal["fixed_array", "tuple"]
-    items: conlist(item_type=JsonValue, min_items=1)  # type: ignore[valid-type]
+    items: conlist(item_type=JsonValue, min_length=1)  # type: ignore[valid-type]
     nullable: bool = False
 
     def gen_schema(self) -> Type:
@@ -142,7 +142,7 @@ class JsonFixedArray(BaseModel, extra=Extra.forbid):
         )
 
 
-class JsonObject(BaseModel, extra=Extra.forbid):
+class JsonObject(BaseModel, extra="forbid"):
     type: Literal["object"]
     attrs: Dict[str, JsonValue]
     nullable: bool = False
@@ -159,7 +159,7 @@ class JsonObject(BaseModel, extra=Extra.forbid):
         )
 
 
-class JsonDict(BaseModel, extra=Extra.forbid):
+class JsonDict(BaseModel, extra="forbid"):
     type: Literal["dict"]
     keys: JsonValue
     values: JsonValue
@@ -178,9 +178,9 @@ class JsonDict(BaseModel, extra=Extra.forbid):
         )
 
 
-class JsonEnum(BaseModel, extra=Extra.forbid):
+class JsonEnum(BaseModel, extra="forbid"):
     type: Literal["enum"]
-    variants: conlist(item_type=JsonValue, min_items=1)  # type: ignore[valid-type]
+    variants: conlist(item_type=JsonValue, min_length=1)  # type: ignore[valid-type]
     nullable: bool = False
 
     def gen_schema(self) -> Type:
@@ -190,7 +190,7 @@ class JsonEnum(BaseModel, extra=Extra.forbid):
         )
 
 
-class JsonLiteral(BaseModel, extra=Extra.forbid):
+class JsonLiteral(BaseModel, extra="forbid"):
     type: Literal["literal"]
     value: Union[constr(strict=True), conint(strict=True), confloat(strict=True)]  # type: ignore[valid-type]
     nullable: bool = False
@@ -206,14 +206,14 @@ def _wrap_nullable(t: Type, nullable: bool) -> Type:
         return t
 
 
-JsonArray.update_forward_refs()
-JsonFixedArray.update_forward_refs()
-JsonDict.update_forward_refs()
-JsonObject.update_forward_refs()
-JsonEnum.update_forward_refs()
+JsonArray.model_rebuild()
+JsonFixedArray.model_rebuild()
+JsonDict.model_rebuild()
+JsonObject.model_rebuild()
+JsonEnum.model_rebuild()
 
 
-class JsonSchema(BaseModel, extra=Extra.forbid):
+class JsonSchema(BaseModel, extra="forbid"):
     type: Literal["json"]
     path: Path
     spec: JsonValue
@@ -235,11 +235,15 @@ class JsonSchema(BaseModel, extra=Extra.forbid):
         schema = self.spec.gen_schema()
 
         try:
-            pydantic.parse_obj_as(schema, json)
+            TypeAdapter(schema).validate_python(json)
         except pydantic.ValidationError as e:
             for error in e.errors():
                 json_path = ".".join(
-                    (str(span) for span in error["loc"] if span != "__root__")
+                    (
+                        str(span)
+                        for span in error["loc"]
+                        if span != "__root__" and not str(span).startswith("literal[")
+                    )
                 )
 
                 if len(json_path) == 0:

@@ -1,7 +1,7 @@
 from typing import List, Tuple, Union
 
 from parsita import ParseError, TextParsers, lit, opt, reg, rep1, rep1sep
-from pydantic import parse_obj_as
+from pydantic import TypeAdapter
 from sortedcontainers import SortedSet
 
 from .values import (
@@ -51,12 +51,18 @@ class TemplateParsers(TextParsers):  # type: ignore[misc]
 
 
 def parse_template(s: str) -> Template:
-    return parse_obj_as(Template, TemplateParsers.template.parse(s).or_die())
+    return TypeAdapter(Template).validate_python(
+        TemplateParsers.template.parse(s).or_die()
+    )
 
 
 def parse_expression(s: str) -> Expression:
-    return parse_obj_as(Expression, TemplateParsers.expression.parse(s).or_die())
+    return TypeAdapter(Expression).validate_python(
+        TemplateParsers.expression.parse(s).or_die()
+    )
 
 
 def parse_assignment(s: str) -> Assignment:
-    return parse_obj_as(Assignment, TemplateParsers.assignment.parse(s).or_die())
+    return TypeAdapter(Assignment).validate_python(
+        TemplateParsers.assignment.parse(s).or_die()
+    )

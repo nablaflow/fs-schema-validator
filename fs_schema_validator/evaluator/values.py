@@ -1,7 +1,7 @@
 import enum
 from typing import Any, Dict, Iterator, List, NewType, Optional, Tuple, Union
 
-from pydantic import BaseModel, ConfigDict, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 from pydantic.dataclasses import dataclass
 from sortedcontainers import SortedSet
 
@@ -61,7 +61,8 @@ class Binding:
 class Enum:
     variants: SortedSet
 
-    @validator("variants", pre=True)
+    @field_validator("variants", mode="before")
+    @classmethod
     def coerce_into_sorted_set(cls, v: Any) -> Any:
         if isinstance(v, set):
             return SortedSet(v)

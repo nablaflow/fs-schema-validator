@@ -4,15 +4,14 @@ import itertools
 from pathlib import Path
 from typing import Iterator, List, Tuple
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ValidationError(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     path: Path
     reason: str
-
-    class Config:
-        frozen = True
 
 
 class ValidationReport(BaseModel):
