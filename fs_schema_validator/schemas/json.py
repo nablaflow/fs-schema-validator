@@ -173,7 +173,7 @@ class JsonDict(BaseModel, extra=Extra.forbid):
             Dict[  # type: ignore[misc]
                 self.keys.gen_schema(),
                 self.values.gen_schema(),
-            ],  # type: ignore[index]
+            ],
             self.nullable,
         )
 

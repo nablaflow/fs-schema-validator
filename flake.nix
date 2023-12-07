@@ -24,10 +24,6 @@
     devEnv = poetry2nix_.mkPoetryEnv {
       projectDir = ./.;
 
-      editablePackageSources = {
-        "fs_schema_validator" = ./fs_schema_validator;
-      };
-
       preferWheels = true;
 
       overrides = poetry2nix_.defaultPoetryOverrides.extend (self: super: {
@@ -46,7 +42,7 @@
     };
   in {
     devShells.default = pkgs.mkShell {
-      buildInputs = [
+      packages = [
         devEnv
         pkgs.poetry
       ];
