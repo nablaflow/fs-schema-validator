@@ -19,7 +19,7 @@ jobs:
         python-version:
           - "3.9.18"
           - "3.10.13"
-          - "3.11.6"
+          - "3.11.7"
     steps:
       - uses: actions/checkout@v4
 
@@ -52,7 +52,7 @@ jobs:
         python-version:
           - "3.9.18"
           - "3.10.13"
-          - "3.11.6"
+          - "3.11.7"
     steps:
       - uses: actions/checkout@v4
 
@@ -84,7 +84,7 @@ jobs:
         python-version:
           - "3.9.18"
           - "3.10.13"
-          - "3.11.6"
+          - "3.11.7"
     steps:
       - uses: actions/checkout@v4
 
