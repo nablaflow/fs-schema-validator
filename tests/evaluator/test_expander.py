@@ -1,7 +1,7 @@
 import pytest
 
 from fs_schema_validator.evaluator import expand
-from fs_schema_validator.evaluator.errors import UnboundSymbol
+from fs_schema_validator.evaluator.errors import UnboundSymbolError
 from fs_schema_validator.evaluator.values import Enum, Range
 
 
@@ -20,9 +20,7 @@ def test_escaping() -> None:
 
 
 def test_range_placeholder() -> None:
-    assert {"foo-0", "foo-1", "foo-2", "foo-3", "foo-4", "foo-5"} == set(
-        expand("foo-{0..5}")
-    )
+    assert {"foo-0", "foo-1", "foo-2", "foo-3", "foo-4", "foo-5"} == set(expand("foo-{0..5}"))
 
 
 def test_full() -> None:
@@ -56,7 +54,7 @@ def test_params() -> None:
 
 
 def test_params_fail() -> None:
-    with pytest.raises(UnboundSymbol):
+    with pytest.raises(UnboundSymbolError):
         expand("foo-{$foo}-{$bar}.jpg")
 
 

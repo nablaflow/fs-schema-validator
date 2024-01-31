@@ -45,6 +45,7 @@
       packages = [
         devEnv
         pkgs.poetry
+        pkgs.just
       ];
     };
 

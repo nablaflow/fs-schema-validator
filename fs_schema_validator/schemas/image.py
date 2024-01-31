@@ -38,16 +38,14 @@ class ImageSchema(BaseModel):
 
         if self.format is ImageFormat.SVG:
             return self._validate_svg(root_dir, report)
-        else:
-            return self._validate_raster(root_dir, report)
+
+        return self._validate_raster(root_dir, report)
 
     def _validate_svg(self, root_dir: Path, report: ValidationReport) -> bool:
         try:
             SVG.parse(root_dir / self.path)
         except Exception as ex:
-            report.append(
-                path=self.path, reason=f"file does not contain a valid svg ({ex})"
-            )
+            report.append(path=self.path, reason=f"file does not contain a valid svg ({ex})")
             return False
 
         return True
@@ -61,7 +59,8 @@ class ImageSchema(BaseModel):
                         reason=f"image is not in {self.format.value} format (unknown format detected)",
                     )
                     return False
-                elif im.format != self.format.to_pillow_format():
+
+                if im.format != self.format.to_pillow_format():
                     report.append(
                         path=self.path,
                         reason=f"image is not in {self.format.value} format (got {im.format.lower()})",

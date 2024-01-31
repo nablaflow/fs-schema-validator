@@ -7,14 +7,13 @@ import orjson
 import pydantic
 from pydantic import (
     BaseModel,
-    Extra,
+    ConfigDict,
     Field,
     StrictBool,
     TypeAdapter,
     confloat,
     conint,
     conlist,
-    conset,
     constr,
 )
 
@@ -39,7 +38,9 @@ JsonValue = Annotated[
 ]
 
 
-class JsonFloat(BaseModel, extra="forbid"):
+class JsonFloat(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     type: Literal["float"]
     min: Optional[float] = None
     exclusive_min: Optional[float] = None
@@ -149,8 +150,7 @@ class JsonObject(BaseModel, extra="forbid"):
 
     def gen_schema(self) -> Type:
         kwargs = {
-            k: (v.gen_schema(), ... if not v.nullable else None)
-            for k, v in self.attrs.items()
+            k: (v.gen_schema(), ... if not v.nullable else None) for k, v in self.attrs.items()
         }
 
         return _wrap_nullable(
@@ -202,8 +202,8 @@ class JsonLiteral(BaseModel, extra="forbid"):
 def _wrap_nullable(t: Type, nullable: bool) -> Type:
     if nullable:
         return cast(Type, Optional[t])
-    else:
-        return t
+
+    return t
 
 
 JsonArray.model_rebuild()

@@ -43,9 +43,7 @@ class BindingParamType(click.ParamType):
     type=click.Path(exists=True, readable=True, dir_okay=False, path_type=Path),
     envvar="VALIDATION_SCHEMA_PATH",
 )
-def validate(
-    schema_path: Path, root_dir: Path, verbose: bool, binding: List[Assignment]
-) -> None:
+def validate(schema_path: Path, root_dir: Path, verbose: bool, binding: List[Assignment]) -> None:
     """Validate a schema against a directory
 
     SCHEMA is a path to a YAML file.
@@ -70,7 +68,7 @@ def validate(
         try:
             schema = Schema.from_yaml(f, extra_bindings)
         except (pydantic.ValidationError, UnicodeDecodeError) as e:
-            click.secho(f"❗️ The provided schema is invalid!", fg="red")
+            click.secho("❗️ The provided schema is invalid!", fg="red")
             click.echo("")
             click.secho(e, fg="red")
             sys.exit(127)

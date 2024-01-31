@@ -36,9 +36,7 @@ class GltfSchema(BaseModel):
             elif self.format == GltfFormat.GLB:
                 gltf = GLTF2.load_binary(root_dir / self.path)
         except Exception as e:
-            report.append(
-                path=self.path, reason=f"failed to deserialize: ({type(e)}) {e}"
-            )
+            report.append(path=self.path, reason=f"failed to deserialize: ({type(e)}) {e}")
             return False
 
         if len(gltf.nodes) == 0:

@@ -12,17 +12,16 @@ click = "~8.1"
 orjson = "~3.9"
 parsita = "~1.7"
 pillow = "~10.2"
-pydantic = "~2.5"
+pydantic = "~2.6"
 pygltflib = "~1.16"
 pyyaml = "~6.0"
 sortedcontainers = "~2.4"
 svgelements = "=1.9.1"
 
 [tool.poetry.group.dev.dependencies]
-black = "~23.12"
-isort = "~5.13"
+ruff = "~0.1.15"
 mypy = "~1.8"
-pytest = "~7.4"
+pytest = "~8.0"
 rich = "~13.7"
 types-pillow = "~10.2.0"
 types-pyyaml = "~6.0.1"
@@ -34,14 +33,16 @@ validate_schema = 'fs_schema_validator.__main__:validate'
 addopts = "-vv"
 pythonpath = "."
 
-[tool.black]
-line-length = 90
-target-version = ["py310"]
+[tool.ruff]
+line-length = 100
+target-version = "py311"
 
-[tool.isort]
-profile = "black"
-line_length = 90
-multi_line_output = 3
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "N", "DTZ", "RET", "SIM", "RUF"]
+ignore = ["E501", "ANN101", "ANN102"]
 
 [tool.mypy]
 check_untyped_defs = true

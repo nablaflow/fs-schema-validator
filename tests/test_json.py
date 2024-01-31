@@ -73,14 +73,9 @@ def test_binding_replacement_in_json_schema(tmp_path: Path) -> None:
                   type: int
     """
 
-    assert (
-        Schema.from_yaml(yaml, {"count": String("4")}).validate_(root_dir=tmp_path).errors
-        == []
-    )
+    assert Schema.from_yaml(yaml, {"count": String("4")}).validate_(root_dir=tmp_path).errors == []
 
-    assert Schema.from_yaml(yaml, {"count": String("5")}).validate_(
-        root_dir=tmp_path
-    ).errors == [
+    assert Schema.from_yaml(yaml, {"count": String("5")}).validate_(root_dir=tmp_path).errors == [
         ValidationError(
             path=Path("file.json"),
             reason="`array`: List should have at least 5 items after validation, not 4",

@@ -4,11 +4,10 @@ import typing
 from io import StringIO
 from itertools import chain, product
 from pathlib import Path
-from typing import Annotated, Any, Dict, Iterator, List, Set, Tuple, TypedDict, Union
+from typing import Annotated, Any, Dict, Iterator, List, Set, Tuple, Union
 
-import pydantic
 import yaml
-from pydantic import BaseModel, Field, parse_obj_as
+from pydantic import BaseModel, Field
 
 if typing.TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -108,32 +107,26 @@ def _type_bindings(untyped_bindings: UntypedBindings) -> Bindings:
     return b
 
 
-def _expand_untyped_validator(
-    validator: Dict[str, Any], bindings: Bindings
-) -> Iterator[dict]:
+def _expand_untyped_validator(validator: Dict[str, Any], bindings: Bindings) -> Iterator[dict]:
     expanded_validator: Dict[str, Iterator[str]] = {
         key: _expand_any(value, bindings) for key, value in validator.items()
     }
 
     return map(
         dict,
-        product(
-            *[[(key, value) for value in it] for key, it in expanded_validator.items()]
-        ),
+        product(*[[(key, value) for value in it] for key, it in expanded_validator.items()]),
     )
 
 
 def _expand_any(value: Any, bindings: Bindings) -> Iterator[Any]:
     if isinstance(value, str):
         return evaluator.expand(value, bindings, leave_unbound_vars_in=True)
-    else:
-        # TODO: this is a hack, figure out a way to easily evaluate a potential binding in a nested object
-        yaml_ = yaml.safe_dump(value)
-        yamls = list(_expand_any(yaml_, bindings))
-        assert (
-            len(yamls) == 1
-        ), "cannot expand to more than one variant when dealing with nested object"
-        return iter([yaml.safe_load(StringIO(yamls[0]))])
+
+    # TODO: this is a hack, figure out a way to easily evaluate a potential binding in a nested object
+    yaml_ = yaml.safe_dump(value)
+    yamls = list(_expand_any(yaml_, bindings))
+    assert len(yamls) == 1, "cannot expand to more than one variant when dealing with nested object"
+    return iter([yaml.safe_load(StringIO(yamls[0]))])
 
 
 def _filter_validators_via_evaluation(
@@ -144,7 +137,7 @@ def _filter_validators_via_evaluation(
             if_ = v["if"]
             del v["if"]
 
-            if evaluator.evaluate(if_, bindings) == True:
+            if evaluator.evaluate(if_, bindings) is True:
                 yield v
         else:
             yield v

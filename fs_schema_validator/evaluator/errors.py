@@ -1,4 +1,4 @@
-class UnboundSymbol(ValueError):
+class UnboundSymbolError(ValueError):
     pass
 
 

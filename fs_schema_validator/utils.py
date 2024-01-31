@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fs_schema_validator.report import ValidationError, ValidationReport
+from fs_schema_validator.report import ValidationReport
 
 
 def _assert_path_exists(root_dir: Path, path: Path, report: ValidationReport) -> bool:

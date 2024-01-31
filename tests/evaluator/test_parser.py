@@ -81,15 +81,11 @@ def test_boolean_expression() -> None:
     assert BooleanExpr(Binding("foo"), Operator.EQ, String("bar")) == parse_expression(
         "$foo == bar"
     )
-    assert BooleanExpr(Binding("foo"), Operator.EQ, String("bar")) == parse_expression(
-        "$foo==bar"
-    )
+    assert BooleanExpr(Binding("foo"), Operator.EQ, String("bar")) == parse_expression("$foo==bar")
     assert BooleanExpr(Binding("foo"), Operator.NEQ, String("bar")) == parse_expression(
         "$foo != bar"
     )
-    assert BooleanExpr(Binding("foo"), Operator.NEQ, String("bar")) == parse_expression(
-        "$foo!=bar"
-    )
+    assert BooleanExpr(Binding("foo"), Operator.NEQ, String("bar")) == parse_expression("$foo!=bar")
 
 
 def test_binding_fail() -> None:

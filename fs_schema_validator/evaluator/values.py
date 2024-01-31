@@ -1,11 +1,11 @@
 import enum
 from typing import Any, Dict, Iterator, List, NewType, Optional, Tuple, Union
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import ConfigDict, field_validator
 from pydantic.dataclasses import dataclass
 from sortedcontainers import SortedSet
 
-from .errors import CoercionError, UnboundSymbol
+from .errors import CoercionError, UnboundSymbolError
 
 
 @dataclass(frozen=True, config=ConfigDict(validate_assignment=True))
@@ -49,15 +49,13 @@ class Binding:
         try:
             return bindings[self.ident]
         except KeyError:
-            raise UnboundSymbol(f"no value provided for binding `{self.ident}`")
+            raise UnboundSymbolError(f"no value provided for binding `{self.ident}`")
 
     def __str__(self) -> str:
         return f"${self.ident}"
 
 
-@dataclass(
-    frozen=True, config=ConfigDict(validate_assignment=True, arbitrary_types_allowed=True)
-)
+@dataclass(frozen=True, config=ConfigDict(validate_assignment=True, arbitrary_types_allowed=True))
 class Enum:
     variants: SortedSet
 
@@ -83,10 +81,8 @@ class Enum:
     def coerce_to_string(self) -> String:
         if len(self.variants) == 1:
             return String(self.variants[0])
-        else:
-            raise CoercionError(
-                f"cannot coerce enum {{{self}}} into String: variants > 1"
-            )
+
+        raise CoercionError(f"cannot coerce enum {{{self}}} into String: variants > 1")
 
 
 @dataclass(frozen=True, config=ConfigDict(validate_assignment=True))
@@ -121,7 +117,7 @@ class Expansion:
     ) -> Iterator[str]:
         try:
             return self.value.expand(bindings, leave_unbound_vars_in, self.format)
-        except UnboundSymbol as ex:
+        except UnboundSymbolError as ex:
             if not leave_unbound_vars_in:
                 raise ex
 
@@ -130,8 +126,8 @@ class Expansion:
     def __str__(self) -> str:
         if self.format is None:
             return f"{{{self.value}}}"
-        else:
-            return f"{{{self.value}:{self.format}}}"
+
+        return f"{{{self.value}:{self.format}}}"
 
 
 def _format(v: Any, format: Optional[str] = None) -> str:
@@ -164,10 +160,11 @@ class BooleanExpr:
 
         if self.op is Operator.EQ:
             return left == self.right
-        elif self.op is Operator.NEQ:
+
+        if self.op is Operator.NEQ:
             return left != self.right
-        else:
-            raise NotImplementedError(f"don't know how to eval operator {self.op}")
+
+        raise NotImplementedError(f"don't know how to eval operator {self.op}")
 
 
 Expression = BooleanExpr

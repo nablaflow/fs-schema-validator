@@ -2,19 +2,15 @@ import itertools
 from typing import Iterator
 
 from .parser import parse_expression, parse_template
-from .values import Bindings, EvaluationResult, Expandable
+from .values import Bindings, EvaluationResult
 
 
-def expand(
-    s: str, bindings: Bindings = {}, leave_unbound_vars_in: bool = False
-) -> Iterator[str]:
+def expand(s: str, bindings: Bindings = {}, leave_unbound_vars_in: bool = False) -> Iterator[str]:
     values = parse_template(s)
 
     return map(
         lambda it: "".join(it),
-        itertools.product(
-            *[value.expand(bindings, leave_unbound_vars_in) for value in values]
-        ),
+        itertools.product(*[value.expand(bindings, leave_unbound_vars_in) for value in values]),
     )
 
 

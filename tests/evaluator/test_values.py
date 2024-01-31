@@ -1,7 +1,7 @@
-from fs_schema_validator.evaluator.values import Binding, Enum, Expansion, Range, String
+from fs_schema_validator.evaluator.values import Binding, Enum, Expansion, Range
 
 
 def test_expansion_str() -> None:
-    assert "{0..10:foo}" == str(Expansion(Range(0, 10), format="foo"))
-    assert "{$foo:bar}" == str(Expansion(Binding("foo"), format="bar"))
-    assert "{bar|foo:baz}" == str(Expansion(Enum({"foo", "bar"}), format="baz"))
+    assert str(Expansion(Range(0, 10), format="foo")) == "{0..10:foo}"
+    assert str(Expansion(Binding("foo"), format="bar")) == "{$foo:bar}"
+    assert str(Expansion(Enum({"foo", "bar"}), format="baz")) == "{bar|foo:baz}"

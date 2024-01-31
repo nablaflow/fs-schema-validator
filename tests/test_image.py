@@ -33,15 +33,9 @@ def test_fail(schema: Schema, tmp_path: Path) -> None:
     (tmp_path / "image.svg").symlink_to(FIXTURES_DIR / "image.png")
 
     assert schema.validate_(root_dir=tmp_path).errors == [
-        ValidationError(
-            path=Path("image.png"), reason="image is not in png format (got webp)"
-        ),
-        ValidationError(
-            path=Path("image.webp"), reason="image is not in webp format (got jpeg)"
-        ),
-        ValidationError(
-            path=Path("image.jpg"), reason="image is not in jpeg format (got png)"
-        ),
+        ValidationError(path=Path("image.png"), reason="image is not in png format (got webp)"),
+        ValidationError(path=Path("image.webp"), reason="image is not in webp format (got jpeg)"),
+        ValidationError(path=Path("image.jpg"), reason="image is not in jpeg format (got png)"),
         ValidationError(
             path=Path("image.svg"),
             reason="file does not contain a valid svg (not well-formed (invalid token): line 1, column 0)",

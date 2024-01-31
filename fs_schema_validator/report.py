@@ -27,9 +27,7 @@ class ValidationReport(BaseModel):
     def grouped_by_path(self) -> Iterator[Tuple[Path, List[str]]]:
         return map(
             lambda a: (a[0], list(map(lambda e: e.reason, a[1]))),
-            itertools.groupby(
-                sorted(self.errors, key=lambda e: e.path), lambda e: e.path
-            ),
+            itertools.groupby(sorted(self.errors, key=lambda e: e.path), lambda e: e.path),
         )
 
     def mark_file_as_ok(self, path: Path) -> None:
