@@ -38,3 +38,9 @@ class ValidationReport(BaseModel):
 
     def okay(self) -> bool:
         return len(self.errors) == 0
+
+    def merge(self, other: ValidationReport) -> ValidationReport:
+        return ValidationReport(
+            errors=self.errors + other.errors,
+            valid_paths=self.valid_paths + other.valid_paths,
+        )

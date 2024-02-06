@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from concurrent.futures import ProcessPoolExecutor
 from io import StringIO
 from itertools import chain, product
 from pathlib import Path
@@ -73,12 +74,30 @@ class Schema(BaseModel):
     def validate_(self, root_dir: Path) -> ValidationReport:
         report = ValidationReport()
 
-        for validator in self.validators:
-            validator_with_expanded_path = _expand_path(validator)
-            if validator_with_expanded_path.validate_(root_dir, report):
-                report.mark_file_as_ok(validator_with_expanded_path.path)
+        with ProcessPoolExecutor() as exec:
+            try:
+                futs = []
+
+                for validator in self.validators:
+                    futs.append(exec.submit(_job, validator=validator, root_dir=root_dir))
+
+                for fut in futs:
+                    report = report.merge(fut.result(timeout=30))
+            finally:
+                exec.shutdown(wait=False, cancel_futures=True)
 
         return report
+
+
+def _job(root_dir: Path, validator: Validator) -> ValidationReport:
+    report = ValidationReport()
+
+    validator_with_expanded_path = _expand_path(validator)
+
+    if validator_with_expanded_path.validate_(root_dir, report):
+        report.mark_file_as_ok(validator_with_expanded_path.path)
+
+    return report
 
 
 def _expand_path(validator: Validator) -> Validator:
