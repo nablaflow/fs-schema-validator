@@ -27,17 +27,13 @@
       preferWheels = true;
 
       overrides = poetry2nix_.defaultPoetryOverrides.extend (self: super: {
-        types-pillow = super.types-pillow.overridePythonAttrs (
-          old: {
+        types-pillow = super.types-pillow.overridePythonAttrs (old: {
             buildInputs = (old.buildInputs or []) ++ [self.setuptools];
-          }
-        );
+        });
 
-        svgelements = super.svgelements.overridePythonAttrs (
-          old: {
-            buildInputs = (old.buildInputs or []) ++ [self.setuptools];
-          }
-        );
+        reportlab = super.reportlab.overridePythonAttrs (old: {
+          postPatch = "";
+        });
       });
     };
   in {
