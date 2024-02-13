@@ -16,7 +16,7 @@ pydantic = "~2.6"
 pygltflib = "~1.16"
 pyyaml = "~6.0"
 sortedcontainers = "~2.4"
-svgelements = "=1.9.1"
+svglib = "~1.5"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "~0.2.0"
@@ -66,7 +66,7 @@ module = [
   "parsita",
   "pygltflib",
   "sortedcontainers",
-  "svgelements",
+  "svglib",
 ]
 ignore_missing_imports = true
 
