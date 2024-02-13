@@ -19,7 +19,7 @@ jobs:
         python-version:
           - "3.9.18"
           - "3.10.13"
-          - "3.11.7"
+          - "3.11.8"
     steps:
       - uses: actions/checkout@v4
 
@@ -42,38 +42,37 @@ jobs:
       - run: poetry install
         if: steps.poetry-cache.outputs.cache-hit != 'true'
 
-  # broken, wait for pydantic 2.6.1
-  # mypy:
-  #   name: mypy
-  #   needs:
-  #     - deps
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       python-version:
-  #         - "3.9.18"
-  #         - "3.10.13"
-  #         - "3.11.7"
-  #   steps:
-  #     - uses: actions/checkout@v4
+  mypy:
+    name: mypy
+    needs:
+      - deps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.9.18"
+          - "3.10.13"
+          - "3.11.8"
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - uses: actions/setup-python@v5
-  #       id: python
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-python@v5
+        id: python
+        with:
+          python-version: ${{ matrix.python-version }}
 
-  #     - uses: abatilo/actions-poetry@v3
-  #       with:
-  #         poetry-version: ${{ env.POETRY_VERSION }}
+      - uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
 
-  #     - id: poetry-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           ~/.cache/pypoetry/virtualenvs
-  #         key: ${{ runner.os }}-python-${{ steps.python.outputs.python-version }}-poetry-${{ env.POETRY_VERSION }}-lock-${{ hashFiles('poetry.lock') }}
+      - id: poetry-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-python-${{ steps.python.outputs.python-version }}-poetry-${{ env.POETRY_VERSION }}-lock-${{ hashFiles('poetry.lock') }}
 
-  #     - run: poetry run mypy .
+      - run: poetry run mypy .
 
   pytest:
     name: pytest
@@ -85,7 +84,7 @@ jobs:
         python-version:
           - "3.9.18"
           - "3.10.13"
-          - "3.11.7"
+          - "3.11.8"
     steps:
       - uses: actions/checkout@v4
 
