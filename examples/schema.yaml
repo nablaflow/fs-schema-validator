@@ -63,7 +63,6 @@ schema:
           type: bool
         array:
           type: array
-          unique_items: true
           min_items: 1
           items:
             type: int
