@@ -19,7 +19,7 @@ sortedcontainers = "~2.4"
 svglib = "~1.5"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "~0.2.0"
+ruff = "~0.2.2"
 mypy = "~1.8"
 pytest = "~8.0"
 rich = "~13.7"
