@@ -20,6 +20,7 @@ jobs:
           - "3.9.18"
           - "3.10.13"
           - "3.11.8"
+          - "3.12.2"
     steps:
       - uses: actions/checkout@v4
 
@@ -53,6 +54,7 @@ jobs:
           - "3.9.18"
           - "3.10.13"
           - "3.11.8"
+          - "3.12.2"
     steps:
       - uses: actions/checkout@v4
 
@@ -85,6 +87,7 @@ jobs:
           - "3.9.18"
           - "3.10.13"
           - "3.11.8"
+          - "3.12.2"
     steps:
       - uses: actions/checkout@v4
 
