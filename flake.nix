@@ -24,6 +24,8 @@
     devEnv = poetry2nix_.mkPoetryEnv {
       projectDir = ./.;
 
+      python = pkgs.python312;
+
       preferWheels = true;
 
       overrides = poetry2nix_.defaultPoetryOverrides.extend (self: super: {
