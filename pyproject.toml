@@ -10,7 +10,7 @@ python = "^3.9"
 
 click = "~8.1"
 orjson = "~3.9"
-parsita = "~1.7"
+parsita = "~1.8"
 pillow = "~10.2"
 pydantic = "~2.6"
 pygltflib = "~1.16"
