@@ -9,7 +9,6 @@ readme = "README.md"
 python = "^3.9"
 
 click = "~8.1"
-orjson = "~3.10"
 parsita = "~1.7"
 pillow = "~10.3"
 pydantic = "~2.7"
@@ -19,10 +18,11 @@ sortedcontainers = "~2.4"
 svglib = "~1.5"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "~0.3.5"
 mypy = "~1.9"
+orjson = "~3.10"
 pytest = "~8.1"
 rich = "~13.7"
+ruff = "~0.4.0"
 types-pillow = "~10.2.0"
 types-pyyaml = "~6.0.12"
 

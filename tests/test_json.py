@@ -49,7 +49,7 @@ def test_root_level_fail(schema: Schema, tmp_path: Path) -> None:
     assert schema.validate_(root_dir=tmp_path).errors == [
         ValidationError(
             path=Path("file.json"),
-            reason="root object: Input should be a valid dictionary or instance of JsonObject",
+            reason="root object: Input should be an object",
         )
     ]
 
@@ -179,7 +179,7 @@ def test_missing(schema: Schema, tmp_path: Path) -> None:
         ({"str": ""}, "`str`: String should have at least 1 character"),
         ({"str": "1"}, "`str`: String should match pattern '^#(\\d+)$'"),
         ({"str": "111111111111"}, "`str`: String should have at most 10 characters"),
-        ({"array": "1"}, "`array`: Input should be a valid list"),
+        ({"array": "1"}, "`array`: Input should be a valid array"),
         (
             {"array": []},
             "`array`: List should have at least 1 item after validation, not 0",

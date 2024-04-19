@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Annotated, Dict, Literal, Optional, Tuple, Type, Union, cast
 
-import orjson
 import pydantic
 from pydantic import (
     BaseModel,
@@ -225,17 +224,10 @@ class JsonSchema(BaseModel, extra="forbid"):
         if not _assert_path_exists(root_dir, self.path, report):
             return False
 
-        with (root_dir / self.path).open() as f:
-            try:
-                json = orjson.loads(f.read())
-            except orjson.JSONDecodeError as e:
-                report.append(path=self.path, reason=f"invalid json file: {e}")
-                return False
-
-        schema = self.spec.gen_schema()
+        schema = TypeAdapter(self.spec.gen_schema())
 
         try:
-            TypeAdapter(schema).validate_python(json)
+            schema.validate_json((root_dir / self.path).read_bytes())
         except pydantic.ValidationError as e:
             for error in e.errors():
                 json_path = ".".join(
