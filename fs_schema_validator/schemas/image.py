@@ -17,6 +17,7 @@ class ImageFormat(Enum):
     WEBP = "webp"
     JPEG = "jpeg"
     SVG = "svg"
+    TIFF = "tiff"
 
     def to_pillow_format(self) -> str:
         return self.value.upper()
