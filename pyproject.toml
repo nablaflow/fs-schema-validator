@@ -23,7 +23,6 @@ orjson = "~3.10"
 pytest = "~8.2"
 rich = "~13.7"
 ruff = "~0.4.6"
-types-pillow = "~10.2.0"
 types-pyyaml = "~6.0.12"
 
 [tool.poetry.scripts]
