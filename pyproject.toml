@@ -22,7 +22,7 @@ mypy = "~1.10"
 orjson = "~3.10"
 pytest = "~8.2"
 rich = "~13.7"
-ruff = "~0.5.0"
+ruff = "~0.5.1"
 types-pyyaml = "~6.0.12"
 
 [tool.poetry.scripts]
