@@ -169,7 +169,7 @@ class JsonDict(BaseModel, extra="forbid"):
 
     def gen_schema(self) -> Type:
         return _wrap_nullable(
-            Dict[  # type: ignore[misc]
+            Dict[  # type: ignore[misc, arg-type]
                 self.keys.gen_schema(),
                 self.values.gen_schema(),
             ],

@@ -18,7 +18,7 @@ sortedcontainers = "~2.4"
 svglib = "~1.5"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "~1.10"
+mypy = "~1.11"
 orjson = "~3.10"
 pytest = "~8.2"
 rich = "~13.7"
