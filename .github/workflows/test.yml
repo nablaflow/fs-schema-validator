@@ -8,7 +8,7 @@ on:
 
 env:
   FORCE_COLOR: 1
-  POETRY_VERSION: "1.7.1"
+  POETRY_VERSION: "1.8.3"
 
 jobs:
   deps:
@@ -17,10 +17,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.9.18"
-          - "3.10.13"
-          - "3.11.8"
-          - "3.12.2"
+          - "3.11.9"
+          - "3.12.4"
     steps:
       - uses: actions/checkout@v4
 
@@ -51,10 +49,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.9.18"
-          - "3.10.13"
-          - "3.11.8"
-          - "3.12.2"
+          - "3.11.9"
+          - "3.12.4"
     steps:
       - uses: actions/checkout@v4
 
@@ -84,10 +80,8 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.9.18"
-          - "3.10.13"
-          - "3.11.8"
-          - "3.12.2"
+          - "3.11.9"
+          - "3.12.4"
     steps:
       - uses: actions/checkout@v4
 
