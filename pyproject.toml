@@ -53,8 +53,9 @@ disallow_untyped_defs = true
 follow_imports = 'silent'
 no_implicit_reexport = true
 show_error_codes = true
-strict_optional = false
+strict_optional = true
 warn_redundant_casts = true
+warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
 
