@@ -47,7 +47,7 @@ def test_fail_empty_nodes(schema: Schema, tmp_path: Path) -> None:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def schema() -> Schema:
     return Schema.from_yaml(
         """

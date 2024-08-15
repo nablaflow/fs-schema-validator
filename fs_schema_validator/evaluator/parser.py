@@ -26,7 +26,7 @@ class TemplateParsers(TextParsers):  # type: ignore[misc]
     symbol = reg(r"[a-zA-Z][a-zA-Z-_0-9]+")
     integer = reg(r"[-+]?\d+") > int
     enum = rep1sep(reg(r"[^:|${}]*"), "|") > (
-        lambda list_: Enum(SortedSet((s.strip() for s in list_)))
+        lambda list_: Enum(SortedSet(s.strip() for s in list_))
     )
     range = (integer << ".." & integer) > (lambda t: Range(t[0], t[1]))
     binding = ("$" >> symbol) > Binding

@@ -1,5 +1,6 @@
 import enum
-from typing import Any, Dict, Iterator, List, NewType, Optional, Tuple, Union
+from collections.abc import Iterator
+from typing import Any, NewType
 
 from pydantic import ConfigDict, field_validator
 from pydantic.dataclasses import dataclass
@@ -16,7 +17,7 @@ class String:
         self,
         _bindings: "Bindings",
         _leave_unbound_vars_in: bool = False,
-        _format: Optional[str] = None,
+        _format: str | None = None,
     ) -> Iterator[str]:
         return iter([self.string])
 
@@ -38,7 +39,7 @@ class Binding:
         self,
         bindings: "Bindings",
         leave_unbound_vars_in: bool = False,
-        format: Optional[str] = None,
+        format: str | None = None,
     ) -> Iterator[str]:
         return self._lookup(bindings).expand(bindings, leave_unbound_vars_in, format)
 
@@ -48,8 +49,8 @@ class Binding:
     def _lookup(self, bindings: "Bindings") -> "Expandable":
         try:
             return bindings[self.ident]
-        except KeyError:
-            raise UnboundSymbolError(f"no value provided for binding `{self.ident}`")
+        except KeyError as ex:
+            raise UnboundSymbolError(f"no value provided for binding `{self.ident}`") from ex
 
     def __str__(self) -> str:
         return f"${self.ident}"
@@ -71,7 +72,7 @@ class Enum:
         self,
         _bindings: "Bindings",
         _leave_unbound_vars_in: bool = False,
-        format: Optional[str] = None,
+        format: str | None = None,
     ) -> Iterator[str]:
         return (_format(s, format) for s in self.variants)
 
@@ -94,7 +95,7 @@ class Range:
         self,
         _bindings: "Bindings",
         _leave_unbound_vars_in: bool = False,
-        format: Optional[str] = None,
+        format: str | None = None,
     ) -> Iterator[str]:
         return (_format(n, format) for n in range(self.start, self.end + 1))
 
@@ -107,8 +108,8 @@ class Range:
 
 @dataclass(frozen=True, config=ConfigDict(validate_assignment=True))
 class Expansion:
-    value: Union[Binding, Range, Enum]
-    format: Optional[str] = None
+    value: Binding | Range | Enum
+    format: str | None = None
 
     def expand(
         self,
@@ -130,17 +131,17 @@ class Expansion:
         return f"{{{self.value}:{self.format}}}"
 
 
-def _format(v: Any, format: Optional[str] = None) -> str:
+def _format(v: Any, format: str | None = None) -> str:
     if format is None:
         return f"{v}"
 
     return f"{{0:{format}}}".format(v)
 
 
-Template = NewType("Template", List[Union[String, Expansion]])
-Expandable = Union[String, Enum, Range]
-Bindings = Dict[str, Expandable]
-Assignment = NewType("Assignment", Tuple[str, Expandable])
+Template = NewType("Template", list[String | Expansion])
+Expandable = String | Enum | Range
+Bindings = dict[str, Expandable]
+Assignment = NewType("Assignment", tuple[str, Expandable])
 
 
 @enum.unique
@@ -168,4 +169,4 @@ class BooleanExpr:
 
 
 Expression = BooleanExpr
-EvaluationResult = Union[bool]
+EvaluationResult = bool

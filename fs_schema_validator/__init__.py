@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import typing
+from collections.abc import Iterator
 from concurrent.futures import ProcessPoolExecutor
 from io import StringIO
 from itertools import chain, product
 from pathlib import Path
-from typing import Annotated, Any, Dict, Iterator, List, Set, Tuple, Union
+from typing import Annotated, Any
 
 import yaml
 from pydantic import BaseModel, Field
@@ -13,7 +14,7 @@ from pydantic import BaseModel, Field
 if typing.TYPE_CHECKING:
     from _typeshed import SupportsRead
 
-import fs_schema_validator.evaluator as evaluator
+from fs_schema_validator import evaluator
 from fs_schema_validator.evaluator.values import Bindings, Enum, Range, String
 from fs_schema_validator.report import ValidationReport
 from fs_schema_validator.schemas.file import FileSchema
@@ -22,36 +23,34 @@ from fs_schema_validator.schemas.image import ImageSchema
 from fs_schema_validator.schemas.json import JsonSchema
 
 Validator = Annotated[
-    Union[
-        JsonSchema,
-        ImageSchema,
-        GltfSchema,
-        FileSchema,
-    ],
+    JsonSchema | ImageSchema | GltfSchema | FileSchema,
     Field(discriminator="type"),
 ]
 
 
 UntypedBindings = Annotated[
-    Dict[str, Union[Tuple[int, int], Set[str], str]], Field(default_factory=dict)
+    dict[str, tuple[int, int] | set[str] | str], Field(default_factory=dict)
 ]
 
-UntypedValidator = Dict[str, Any]
+UntypedValidator = dict[str, Any]
 
 
 class UntypedSchema(BaseModel):
-    validators: List[UntypedValidator] = Field(alias="schema")
+    validators: list[UntypedValidator] = Field(alias="schema")
     bindings: UntypedBindings
 
 
 class Schema(BaseModel):
-    validators: List[Validator]
+    validators: list[Validator]
 
     @staticmethod
     def from_yaml(
-        f: Union[str, bytes, "SupportsRead[str]", "SupportsRead[bytes]"],
-        extra_bindings: Bindings = {},
+        f: str | bytes | SupportsRead[str] | SupportsRead[bytes],
+        extra_bindings: Bindings | None = None,
     ) -> Schema:
+        if extra_bindings is None:
+            extra_bindings = {}
+
         untyped_schema = UntypedSchema(**yaml.safe_load(f))
 
         bindings = {**_type_bindings(untyped_schema.bindings), **extra_bindings}
@@ -62,10 +61,8 @@ class Schema(BaseModel):
 
         expanded_untyped_validators = list(
             chain.from_iterable(
-                (
-                    _expand_untyped_validator(untyped_validator, bindings)
-                    for untyped_validator in filtered_untyped_validators
-                )
+                _expand_untyped_validator(untyped_validator, bindings)
+                for untyped_validator in filtered_untyped_validators
             )
         )
 
@@ -76,10 +73,10 @@ class Schema(BaseModel):
 
         with ProcessPoolExecutor() as exec:
             try:
-                futs = []
-
-                for validator in self.validators:
-                    futs.append(exec.submit(_job, validator=validator, root_dir=root_dir))
+                futs = [
+                    exec.submit(_job, validator=validator, root_dir=root_dir)
+                    for validator in self.validators
+                ]
 
                 for fut in futs:
                     report = report.merge(fut.result(timeout=30))
@@ -126,8 +123,8 @@ def _type_bindings(untyped_bindings: UntypedBindings) -> Bindings:
     return b
 
 
-def _expand_untyped_validator(validator: Dict[str, Any], bindings: Bindings) -> Iterator[dict]:
-    expanded_validator: Dict[str, Iterator[str]] = {
+def _expand_untyped_validator(validator: dict[str, Any], bindings: Bindings) -> Iterator[dict]:
+    expanded_validator: dict[str, Iterator[str]] = {
         key: _expand_any(value, bindings) for key, value in validator.items()
     }
 
@@ -149,7 +146,7 @@ def _expand_any(value: Any, bindings: Bindings) -> Iterator[Any]:
 
 
 def _filter_validators_via_evaluation(
-    validators: List[UntypedValidator], bindings: Bindings
+    validators: list[UntypedValidator], bindings: Bindings
 ) -> Iterator[UntypedValidator]:
     for v in validators:
         if "if" in v:

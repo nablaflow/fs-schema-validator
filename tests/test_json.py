@@ -152,7 +152,7 @@ def test_missing(schema: Schema, tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    "json,expected_reason",
+    ("json", "expected_reason"),
     [
         ({}, "`bool`: Field required"),
         ({}, "`int`: Field required"),
@@ -218,7 +218,7 @@ def test_fail(
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def schema() -> Schema:
     return Schema.from_yaml(
         """

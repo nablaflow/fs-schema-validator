@@ -61,6 +61,7 @@
         cp -r ${src}/* .
 
         ${poetryEnv}/bin/ruff format --diff --check .
+        ${poetryEnv}/bin/ruff check .
 
         touch $out
       '';

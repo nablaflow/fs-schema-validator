@@ -2,7 +2,7 @@
 
 import sys
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
 import click
 import pydantic
@@ -43,7 +43,7 @@ class BindingParamType(click.ParamType):
     type=click.Path(exists=True, readable=True, dir_okay=False, path_type=Path),
     envvar="VALIDATION_SCHEMA_PATH",
 )
-def validate(schema_path: Path, root_dir: Path, verbose: bool, binding: List[Assignment]) -> None:
+def validate(schema_path: Path, root_dir: Path, verbose: bool, binding: list[Assignment]) -> None:
     """Validate a schema against a directory
 
     SCHEMA is a path to a YAML file.

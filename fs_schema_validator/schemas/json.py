@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated, Dict, Literal, Optional, Tuple, Type, Union, cast
+from typing import Annotated, Literal, Union, cast
 
 import pydantic
 from pydantic import (
@@ -33,22 +33,22 @@ JsonValue = Annotated[
         "JsonEnum",
         "JsonLiteral",
     ],
-    Field(discriminator="type"),
+    Field(discriminator="t"),
 ]
 
 
 class JsonFloat(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    type: Literal["float"]
-    min: Optional[float] = None
-    exclusive_min: Optional[float] = None
-    max: Optional[float] = None
-    exclusive_max: Optional[float] = None
-    multiple_of: Optional[float] = None
+    t: Literal["float"] = Field(alias="type")
+    min: float | None = None
+    exclusive_min: float | None = None
+    max: float | None = None
+    exclusive_max: float | None = None
+    multiple_of: float | None = None
     nullable: bool = False
 
-    def gen_schema(self) -> Type:
+    def gen_schema(self) -> type:
         return _wrap_nullable(
             confloat(
                 strict=True,
@@ -63,23 +63,23 @@ class JsonFloat(BaseModel):
 
 
 class JsonBool(BaseModel, extra="forbid"):
-    type: Literal["bool", "boolean"]
+    t: Literal["bool", "boolean"] = Field(alias="type")
     nullable: bool = False
 
-    def gen_schema(self) -> Type:
+    def gen_schema(self) -> type:
         return _wrap_nullable(StrictBool, self.nullable)
 
 
 class JsonInt(BaseModel, extra="forbid"):
-    type: Literal["int", "integer"]
-    min: Optional[int] = None
-    exclusive_min: Optional[int] = None
-    max: Optional[int] = None
-    exclusive_max: Optional[int] = None
-    multiple_of: Optional[int] = None
+    t: Literal["int", "integer"] = Field(alias="type")
+    min: int | None = None
+    exclusive_min: int | None = None
+    max: int | None = None
+    exclusive_max: int | None = None
+    multiple_of: int | None = None
     nullable: bool = False
 
-    def gen_schema(self) -> Type:
+    def gen_schema(self) -> type:
         return _wrap_nullable(
             conint(
                 strict=True,
@@ -94,13 +94,13 @@ class JsonInt(BaseModel, extra="forbid"):
 
 
 class JsonString(BaseModel, extra="forbid"):
-    type: Literal["str", "string"]
-    min_length: Optional[int] = None
-    max_length: Optional[int] = None
-    regex: Optional[str] = None
+    t: Literal["str", "string"] = Field(alias="type")
+    min_length: int | None = None
+    max_length: int | None = None
+    regex: str | None = None
     nullable: bool = False
 
-    def gen_schema(self) -> Type:
+    def gen_schema(self) -> type:
         return _wrap_nullable(
             constr(
                 strict=True,
@@ -113,13 +113,13 @@ class JsonString(BaseModel, extra="forbid"):
 
 
 class JsonArray(BaseModel, extra="forbid"):
-    type: Literal["array", "list"]
+    t: Literal["array", "list"] = Field(alias="type")
     items: JsonValue
-    min_items: Optional[int] = None
-    max_items: Optional[int] = None
+    min_items: int | None = None
+    max_items: int | None = None
     nullable: bool = False
 
-    def gen_schema(self) -> Type:
+    def gen_schema(self) -> type:
         return _wrap_nullable(
             conlist(
                 item_type=self.items.gen_schema(),
@@ -131,23 +131,23 @@ class JsonArray(BaseModel, extra="forbid"):
 
 
 class JsonFixedArray(BaseModel, extra="forbid"):
-    type: Literal["fixed_array", "tuple"]
+    t: Literal["fixed_array", "tuple"] = Field(alias="type")
     items: conlist(item_type=JsonValue, min_length=1)  # type: ignore[valid-type]
     nullable: bool = False
 
-    def gen_schema(self) -> Type:
+    def gen_schema(self) -> type:
         return _wrap_nullable(
-            cast(Type, Tuple[tuple((v.gen_schema() for v in self.items))]),
+            cast(type, tuple[tuple(v.gen_schema() for v in self.items)]),  # type: ignore[misc]
             self.nullable,
         )
 
 
 class JsonObject(BaseModel, extra="forbid"):
-    type: Literal["object"]
-    attrs: Dict[str, JsonValue]
+    t: Literal["object"] = Field(alias="type")
+    attrs: dict[str, JsonValue]
     nullable: bool = False
 
-    def gen_schema(self) -> Type:
+    def gen_schema(self) -> type:
         kwargs = {
             k: (v.gen_schema(), ... if not v.nullable else None) for k, v in self.attrs.items()
         }
@@ -159,17 +159,15 @@ class JsonObject(BaseModel, extra="forbid"):
 
 
 class JsonDict(BaseModel, extra="forbid"):
-    type: Literal["dict"]
+    t: Literal["dict"] = Field(alias="type")
     keys: JsonValue
     values: JsonValue
     nullable: bool = False
     # TODO: allow items count constraints
-    #  min_items: Optional[int] = None
-    #  max_items: Optional[int] = None
 
-    def gen_schema(self) -> Type:
+    def gen_schema(self) -> type:
         return _wrap_nullable(
-            Dict[  # type: ignore[misc, arg-type]
+            dict[  # type: ignore[misc, arg-type]
                 self.keys.gen_schema(),
                 self.values.gen_schema(),
             ],
@@ -178,29 +176,29 @@ class JsonDict(BaseModel, extra="forbid"):
 
 
 class JsonEnum(BaseModel, extra="forbid"):
-    type: Literal["enum"]
+    t: Literal["enum"] = Field(alias="type")
     variants: conlist(item_type=JsonValue, min_length=1)  # type: ignore[valid-type]
     nullable: bool = False
 
-    def gen_schema(self) -> Type:
+    def gen_schema(self) -> type:
         return _wrap_nullable(
-            cast(Type, Union[tuple((v.gen_schema() for v in self.variants))]),
+            cast(type, Union[tuple(v.gen_schema() for v in self.variants)]),  # noqa: UP007
             self.nullable,
         )
 
 
 class JsonLiteral(BaseModel, extra="forbid"):
-    type: Literal["literal"]
-    value: Union[constr(strict=True), conint(strict=True), confloat(strict=True)]  # type: ignore[valid-type]
+    t: Literal["literal"] = Field(alias="type")
+    value: constr(strict=True) | conint(strict=True) | confloat(strict=True)  # type: ignore[valid-type]
     nullable: bool = False
 
-    def gen_schema(self) -> Type:
-        return _wrap_nullable(cast(Type, Literal[self.value]), self.nullable)
+    def gen_schema(self) -> type:
+        return _wrap_nullable(cast(type, Literal[self.value]), self.nullable)
 
 
-def _wrap_nullable(t: Type, nullable: bool) -> Type:
+def _wrap_nullable(t: type, nullable: bool) -> type:
     if nullable:
-        return cast(Type, Optional[t])
+        return cast(type, t | None)
 
     return t
 
@@ -224,18 +222,16 @@ class JsonSchema(BaseModel, extra="forbid"):
         if not _assert_path_exists(root_dir, self.path, report):
             return False
 
-        schema = TypeAdapter(self.spec.gen_schema())
+        schema = TypeAdapter[type](self.spec.gen_schema())
 
         try:
             schema.validate_json((root_dir / self.path).read_bytes())
         except pydantic.ValidationError as e:
             for error in e.errors():
                 json_path = ".".join(
-                    (
-                        str(span)
-                        for span in error["loc"]
-                        if span != "__root__" and not str(span).startswith("literal[")
-                    )
+                    str(span)
+                    for span in error["loc"]
+                    if span != "__root__" and not str(span).startswith("literal[")
                 )
 
                 if len(json_path) == 0:
