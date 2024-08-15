@@ -1,104 +1,28 @@
-name: ci-staging
+name: test
 
 on:
   push:
     branches:
       - master
+    paths-ignore:
+      - ".github/dependabot.yml"
   pull_request:
 
-env:
-  FORCE_COLOR: 1
-  POETRY_VERSION: "1.8.3"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deps:
-    name: deps
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version:
-          - "3.11.9"
-          - "3.12.4"
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        id: python
+      - uses: cachix/install-nix-action@v27
         with:
-          python-version: ${{ matrix.python-version }}
+          github_access_token: ${{ github.token }}
 
-      - uses: abatilo/actions-poetry@v3
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
+      - uses: DeterminateSystems/magic-nix-cache-action@main
 
-      - id: poetry-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-python-${{ steps.python.outputs.python-version }}-poetry-${{ env.POETRY_VERSION }}-lock-${{ hashFiles('poetry.lock') }}
-
-      - run: poetry install
-        if: steps.poetry-cache.outputs.cache-hit != 'true'
-
-  mypy:
-    name: mypy
-    needs:
-      - deps
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version:
-          - "3.11.9"
-          - "3.12.4"
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        id: python
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - uses: abatilo/actions-poetry@v3
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
-
-      - id: poetry-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-python-${{ steps.python.outputs.python-version }}-poetry-${{ env.POETRY_VERSION }}-lock-${{ hashFiles('poetry.lock') }}
-
-      - run: poetry run mypy .
-
-  pytest:
-    name: pytest
-    needs:
-      - deps
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version:
-          - "3.11.9"
-          - "3.12.4"
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        id: python
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - uses: abatilo/actions-poetry@v3
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
-
-      - id: poetry-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-python-${{ steps.python.outputs.python-version }}-poetry-${{ env.POETRY_VERSION }}-lock-${{ hashFiles('poetry.lock') }}
-
-      - run: poetry run pytest .
+      - run: nix flake check -L

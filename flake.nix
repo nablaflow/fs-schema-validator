@@ -1,11 +1,10 @@
 {
-  description = "";
-
   inputs = {
-    nixpkgs = {url = "github:NixOS/nixpkgs/nixpkgs-unstable";};
-    flake-utils = {url = "github:numtide/flake-utils";};
+    nixpkgs.url = github:NixOS/nixpkgs/5a1fae64da2be3d09a8f289c6257146997827d1d;
+    flake-utils.url = github:numtide/flake-utils;
+
     poetry2nix = {
-      url = "github:nix-community/poetry2nix";
+      url = github:nix-community/poetry2nix;
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -14,37 +13,81 @@
     self,
     nixpkgs,
     flake-utils,
-    poetry2nix,
     ...
-  }: (flake-utils.lib.eachDefaultSystem (system: let
-    pkgs = import nixpkgs {inherit system;};
+  } @ inputs: (flake-utils.lib.eachDefaultSystem (system: let
+    pkgs = import nixpkgs {
+      inherit system;
 
-    poetry2nix_ = poetry2nix.lib.mkPoetry2Nix {inherit pkgs;};
+      overlays = [
+        (final: prev: {
+          poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix {pkgs = prev;};
+        })
+      ];
+    };
 
-    devEnv = poetry2nix_.mkPoetryEnv {
+    poetryEnv = pkgs.poetry2nix.mkPoetryEnv {
       projectDir = ./.;
-
-      python = pkgs.python312;
 
       preferWheels = true;
 
-      overrides = poetry2nix_.defaultPoetryOverrides.extend (self: super: {
-        types-pillow = super.types-pillow.overridePythonAttrs (old: {
-            buildInputs = (old.buildInputs or []) ++ [self.setuptools];
-        });
-
+      overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend (self: super: {
         reportlab = super.reportlab.overridePythonAttrs (old: {
           postPatch = "";
         });
       });
     };
+
+    src = pkgs.lib.fileset.toSource {
+      root = ./.;
+
+      fileset = pkgs.lib.fileset.unions [
+        ./pyproject.toml
+        (pkgs.lib.fileset.fileFilter (file: file.hasExt "py") ./fs_schema_validator)
+        (pkgs.lib.fileset.fileFilter (file: file.hasExt "py") ./tests)
+        ./tests/fixtures
+      ];
+    };
   in {
     devShells.default = pkgs.mkShell {
       packages = [
-        devEnv
+        poetryEnv
         pkgs.poetry
         pkgs.just
       ];
+    };
+
+    checks = {
+      lint = pkgs.runCommand "lint" {} ''
+        cp -r ${src}/* .
+
+        ${poetryEnv}/bin/ruff format --diff --check .
+
+        touch $out
+      '';
+
+      deptry = pkgs.runCommand "deptry" {} ''
+        cp -r ${src}/* .
+
+        ${poetryEnv}/bin/deptry .
+
+        touch $out
+      '';
+
+      typecheck = pkgs.runCommand "typecheck" {} ''
+        cp -r ${src}/* .
+
+        ${poetryEnv}/bin/mypy .
+
+        touch $out
+      '';
+
+      test = pkgs.runCommand "test" {} ''
+        cp -r ${src}/* .
+
+        ${poetryEnv}/bin/pytest
+
+        touch $out
+      '';
     };
 
     formatter = pkgs.alejandra;
