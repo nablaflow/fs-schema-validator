@@ -44,7 +44,7 @@ def test_fail(schema: Schema, tmp_path: Path) -> None:
     ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def schema() -> Schema:
     return Schema.from_yaml(
         """
