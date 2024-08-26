@@ -218,7 +218,7 @@ def test_fail(
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def schema() -> Schema:
     return Schema.from_yaml(
         """
