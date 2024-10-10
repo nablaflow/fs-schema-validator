@@ -2,6 +2,7 @@ from enum import Enum, unique
 from pathlib import Path
 from typing import Literal
 
+import pillow_avif  # noqa: F401
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
 from svglib import svglib
@@ -18,6 +19,7 @@ class ImageFormat(Enum):
     JPEG = "jpeg"
     SVG = "svg"
     TIFF = "tiff"
+    AVIF = "avif"
 
     def to_pillow_format(self) -> str:
         return self.value.upper()
