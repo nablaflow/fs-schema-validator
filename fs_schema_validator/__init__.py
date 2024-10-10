@@ -21,9 +21,10 @@ from fs_schema_validator.schemas.file import FileSchema
 from fs_schema_validator.schemas.gltf import GltfSchema
 from fs_schema_validator.schemas.image import ImageSchema
 from fs_schema_validator.schemas.json import JsonSchema
+from fs_schema_validator.schemas.zip import ZipSchema
 
 Validator = Annotated[
-    JsonSchema | ImageSchema | GltfSchema | FileSchema,
+    JsonSchema | ImageSchema | GltfSchema | FileSchema | ZipSchema,
     Field(discriminator="type"),
 ]
 
