@@ -132,7 +132,7 @@ class JsonArray(BaseModel, extra="forbid"):
 
 class JsonFixedArray(BaseModel, extra="forbid"):
     t: Literal["fixed_array", "tuple"] = Field(alias="type")
-    items: conlist(item_type=JsonValue, min_length=1)  # type: ignore[valid-type]
+    items: list[JsonValue] = Field(min_length=1)
     nullable: bool = False
 
     def gen_schema(self) -> type:
@@ -177,7 +177,7 @@ class JsonDict(BaseModel, extra="forbid"):
 
 class JsonEnum(BaseModel, extra="forbid"):
     t: Literal["enum"] = Field(alias="type")
-    variants: conlist(item_type=JsonValue, min_length=1)  # type: ignore[valid-type]
+    variants: list[JsonValue] = Field(min_length=1)
     nullable: bool = False
 
     def gen_schema(self) -> type:
@@ -189,7 +189,7 @@ class JsonEnum(BaseModel, extra="forbid"):
 
 class JsonLiteral(BaseModel, extra="forbid"):
     t: Literal["literal"] = Field(alias="type")
-    value: constr(strict=True) | conint(strict=True) | confloat(strict=True)  # type: ignore[valid-type]
+    value: str | int | float = Field(strict=True)
     nullable: bool = False
 
     def gen_schema(self) -> type:
