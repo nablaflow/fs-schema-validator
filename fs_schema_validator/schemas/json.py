@@ -9,11 +9,10 @@ from pydantic import (
     ConfigDict,
     Field,
     StrictBool,
+    StrictFloat,
+    StrictInt,
+    StrictStr,
     TypeAdapter,
-    confloat,
-    conint,
-    conlist,
-    constr,
 )
 
 from fs_schema_validator.evaluator.values import Bindings
@@ -50,13 +49,18 @@ class JsonFloat(BaseModel):
 
     def gen_schema(self) -> type:
         return _wrap_nullable(
-            confloat(
-                strict=True,
-                ge=self.min,
-                le=self.max,
-                gt=self.exclusive_min,
-                lt=self.exclusive_max,
-                multiple_of=self.multiple_of,
+            cast(
+                type,
+                Annotated[
+                    StrictFloat,
+                    Field(
+                        ge=self.min,
+                        le=self.max,
+                        gt=self.exclusive_min,
+                        lt=self.exclusive_max,
+                        multiple_of=self.multiple_of,
+                    ),
+                ],
             ),
             self.nullable,
         )
@@ -81,13 +85,18 @@ class JsonInt(BaseModel, extra="forbid"):
 
     def gen_schema(self) -> type:
         return _wrap_nullable(
-            conint(
-                strict=True,
-                ge=self.min,
-                le=self.max,
-                gt=self.exclusive_min,
-                lt=self.exclusive_max,
-                multiple_of=self.multiple_of,
+            cast(
+                type,
+                Annotated[
+                    StrictInt,
+                    Field(
+                        ge=self.min,
+                        le=self.max,
+                        gt=self.exclusive_min,
+                        lt=self.exclusive_max,
+                        multiple_of=self.multiple_of,
+                    ),
+                ],
             ),
             self.nullable,
         )
@@ -102,11 +111,16 @@ class JsonString(BaseModel, extra="forbid"):
 
     def gen_schema(self) -> type:
         return _wrap_nullable(
-            constr(
-                strict=True,
-                min_length=self.min_length,
-                max_length=self.max_length,
-                pattern=self.regex,
+            cast(
+                type,
+                Annotated[
+                    StrictStr,
+                    Field(
+                        min_length=self.min_length,
+                        max_length=self.max_length,
+                        pattern=self.regex,
+                    ),
+                ],
             ),
             self.nullable,
         )
@@ -121,10 +135,15 @@ class JsonArray(BaseModel, extra="forbid"):
 
     def gen_schema(self) -> type:
         return _wrap_nullable(
-            conlist(
-                item_type=self.items.gen_schema(),
-                min_length=self.min_items,
-                max_length=self.max_items,
+            cast(
+                type,
+                Annotated[
+                    list[self.items.gen_schema()],  # type: ignore[misc]
+                    Field(
+                        min_length=self.min_items,
+                        max_length=self.max_items,
+                    ),
+                ],
             ),
             self.nullable,
         )
@@ -189,7 +208,7 @@ class JsonEnum(BaseModel, extra="forbid"):
 
 class JsonLiteral(BaseModel, extra="forbid"):
     t: Literal["literal"] = Field(alias="type")
-    value: str | int | float = Field(strict=True)
+    value: StrictStr | StrictInt | StrictFloat
     nullable: bool = False
 
     def gen_schema(self) -> type:
