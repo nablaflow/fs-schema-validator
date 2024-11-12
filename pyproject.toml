@@ -19,12 +19,12 @@ sortedcontainers = "~2.4"
 svglib = "~1.5"
 
 [tool.poetry.group.dev.dependencies]
-deptry = "^0.20.0"
+deptry = "^0.21.0"
 mypy = "~1.13"
 orjson = "~3.10"
 pytest = "~8.3"
 rich = "~13.9"
-ruff = "~0.7.2"
+ruff = "~0.7.3"
 types-pyyaml = "~6.0.12"
 
 [tool.poetry.scripts]
