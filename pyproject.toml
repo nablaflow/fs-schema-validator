@@ -78,7 +78,7 @@ select = [
   "SIM",
   "SLOT",
   "T20",
-  "TCH",
+  "TC",
   "TID",
   "UP",
   "W",
@@ -97,9 +97,9 @@ ignore = [
   "S603",
   "S607",
   "SIM108",
-  "TCH001",
-  "TCH002",
-  "TCH003",
+  "TC001",
+  "TC002",
+  "TC003",
 ]
 
 [tool.mypy]
