@@ -1,10 +1,10 @@
 {
   inputs = {
-    nixpkgs.url = github:NixOS/nixpkgs/5a1fae64da2be3d09a8f289c6257146997827d1d;
-    flake-utils.url = github:numtide/flake-utils;
+    nixpkgs.url = "github:NixOS/nixpkgs/948a31b4b765c01f485c05bdeb12b2197f440d5a";
+    flake-utils.url = "github:numtide/flake-utils";
 
     poetry2nix = {
-      url = github:nix-community/poetry2nix;
+      url = "github:nix-community/poetry2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
