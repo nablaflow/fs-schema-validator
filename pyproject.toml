@@ -10,7 +10,7 @@ python = "^3.9"
 
 click = "~8.1"
 parsita = "~1.7"
-pillow = "~11.0"
+pillow = "~11.1"
 pillow-avif-plugin = "^1.4.6"
 pydantic = "~2.10"
 pygltflib = "~1.16"
@@ -24,7 +24,7 @@ mypy = "~1.14"
 orjson = "~3.10"
 pytest = "~8.3"
 rich = "~13.9"
-ruff = "~0.8.4"
+ruff = "~0.8.6"
 types-pyyaml = "~6.0.12"
 
 [tool.poetry.scripts]
