@@ -100,9 +100,9 @@ def _job(root_dir: Path, validator: Validator) -> ValidationReport:
 
 def _expand_path(validator: Validator) -> Validator:
     path = list(evaluator.expand(str(validator.path), validator.inner_bindings()))
-    assert (
-        len(path) == 1
-    ), "cannot expand to more than one variant when dealing with paths and a validator's inner bindings"
+    assert len(path) == 1, (
+        "cannot expand to more than one variant when dealing with paths and a validator's inner bindings"
+    )
 
     validator = validator.model_copy()
     validator.path = Path(path[0])
