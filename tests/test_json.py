@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import orjson
 import pytest
@@ -206,7 +207,7 @@ def test_missing(schema: Schema, tmp_path: Path) -> None:
 def test_fail(
     schema: Schema,
     tmp_path: Path,
-    json: dict,
+    json: dict[str, Any],
     expected_reason: str,
 ) -> None:
     json_path = tmp_path / "file.json"

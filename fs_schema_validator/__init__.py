@@ -124,7 +124,9 @@ def _type_bindings(untyped_bindings: UntypedBindings) -> Bindings:
     return b
 
 
-def _expand_untyped_validator(validator: dict[str, Any], bindings: Bindings) -> Iterator[dict]:
+def _expand_untyped_validator(
+    validator: dict[str, Any], bindings: Bindings
+) -> Iterator[dict[str, Any]]:
     expanded_validator: dict[str, Iterator[str]] = {
         key: _expand_any(value, bindings) for key, value in validator.items()
     }

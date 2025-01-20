@@ -113,6 +113,7 @@ follow_imports = 'silent'
 pretty = true
 no_implicit_reexport = true
 show_error_codes = true
+strict = true
 strict_optional = true
 warn_redundant_casts = true
 warn_unreachable = true
