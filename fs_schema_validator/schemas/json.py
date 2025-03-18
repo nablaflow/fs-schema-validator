@@ -50,7 +50,7 @@ class JsonFloat(BaseModel):
     def gen_schema(self) -> type:
         return _wrap_nullable(
             cast(
-                type,
+                "type",
                 Annotated[
                     StrictFloat,
                     Field(
@@ -86,7 +86,7 @@ class JsonInt(BaseModel, extra="forbid"):
     def gen_schema(self) -> type:
         return _wrap_nullable(
             cast(
-                type,
+                "type",
                 Annotated[
                     StrictInt,
                     Field(
@@ -112,7 +112,7 @@ class JsonString(BaseModel, extra="forbid"):
     def gen_schema(self) -> type:
         return _wrap_nullable(
             cast(
-                type,
+                "type",
                 Annotated[
                     StrictStr,
                     Field(
@@ -136,7 +136,7 @@ class JsonArray(BaseModel, extra="forbid"):
     def gen_schema(self) -> type:
         return _wrap_nullable(
             cast(
-                type,
+                "type",
                 Annotated[
                     list[self.items.gen_schema()],  # type: ignore[misc]
                     Field(
@@ -156,7 +156,7 @@ class JsonFixedArray(BaseModel, extra="forbid"):
 
     def gen_schema(self) -> type:
         return _wrap_nullable(
-            cast(type, tuple[tuple(v.gen_schema() for v in self.items)]),  # type: ignore[misc]
+            cast("type", tuple[tuple(v.gen_schema() for v in self.items)]),  # type: ignore[misc]
             self.nullable,
         )
 
@@ -201,7 +201,7 @@ class JsonEnum(BaseModel, extra="forbid"):
 
     def gen_schema(self) -> type:
         return _wrap_nullable(
-            cast(type, Union[tuple(v.gen_schema() for v in self.variants)]),  # noqa: UP007
+            cast("type", Union[tuple(v.gen_schema() for v in self.variants)]),  # noqa: UP007
             self.nullable,
         )
 
@@ -212,12 +212,12 @@ class JsonLiteral(BaseModel, extra="forbid"):
     nullable: bool = False
 
     def gen_schema(self) -> type:
-        return _wrap_nullable(cast(type, Literal[self.value]), self.nullable)
+        return _wrap_nullable(cast("type", Literal[self.value]), self.nullable)
 
 
 def _wrap_nullable(t: type, nullable: bool) -> type:
     if nullable:
-        return cast(type, t | None)
+        return cast("type", t | None)
 
     return t
 
