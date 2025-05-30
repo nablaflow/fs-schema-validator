@@ -20,7 +20,7 @@ svglib = "~1.5"
 
 [tool.poetry.group.dev.dependencies]
 deptry = "^0.23.0"
-mypy = "~1.16"
+mypy = "~1.15"
 orjson = "~3.10"
 pytest = "~8.3"
 rich = "~14.0"
