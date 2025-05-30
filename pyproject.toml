@@ -6,9 +6,9 @@ authors = ["Federico Ravasio <fr@nablaflow.io>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.12"
 
-click = "~8.1"
+click = "~8.2"
 parsita = "~1.7"
 pillow = "^11.2.1"
 pillow-avif-plugin = "^1.5.2"
@@ -20,7 +20,7 @@ svglib = "~1.5"
 
 [tool.poetry.group.dev.dependencies]
 deptry = "^0.23.0"
-mypy = "~1.15"
+mypy = "~1.16"
 orjson = "~3.10"
 pytest = "~8.3"
 rich = "~14.0"
