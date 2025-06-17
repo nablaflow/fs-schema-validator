@@ -38,3 +38,4 @@ jobs:
           purge-primary-key: never
 
       - run: nix flake check -L
+        timeout-minutes: 5
