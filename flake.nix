@@ -1,10 +1,16 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/9684b53175fc6c09581e94cc85f05ab77464c7e3"; # nixos-24.11
-    flake-utils.url = "github:numtide/flake-utils";
+
+    systems.url = "github:nix-systems/default-linux";
+
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
+    };
 
     poetry2nix = {
-      url = "github:nix-community/poetry2nix";
+      url = "github:nablaflow/poetry2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
