@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 
-click = "~8.2"
+click = "~8.3"
 parsita = "~1.7"
 pillow = "^11.3.0"
 pillow-avif-plugin = "^1.5.2"
@@ -24,7 +24,7 @@ mypy = "~1.18"
 orjson = "~3.11"
 pytest = "~8.4"
 rich = "~14.1"
-ruff = "~0.13.0"
+ruff = "~0.13.1"
 types-pyyaml = "~6.0.12"
 
 [tool.poetry.scripts]
