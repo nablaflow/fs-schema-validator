@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 
-click = "~8.2"
+click = "~8.3"
 parsita = "~1.7"
 pillow = "^11.3.0"
 pillow-avif-plugin = "^1.5.2"
@@ -16,7 +16,7 @@ pydantic = "~2.11"
 pygltflib = "~1.16"
 pyyaml = "~6.0"
 sortedcontainers = "~2.4"
-svglib = "~1.5"
+svglib = "~1.6"
 
 [tool.poetry.group.dev.dependencies]
 deptry = "^0.23.1"
@@ -24,7 +24,7 @@ mypy = "~1.18"
 orjson = "~3.11"
 pytest = "~8.4"
 rich = "~14.1"
-ruff = "~0.13.0"
+ruff = "~0.13.2"
 types-pyyaml = "~6.0.12"
 
 [tool.poetry.scripts]
