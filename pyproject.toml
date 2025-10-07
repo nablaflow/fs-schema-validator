@@ -24,7 +24,7 @@ mypy = "~1.18"
 orjson = "~3.11"
 pytest = "~8.4"
 rich = "~14.1"
-ruff = "~0.13.2"
+ruff = "~0.13.3"
 types-pyyaml = "~6.0.12"
 
 [tool.poetry.scripts]
