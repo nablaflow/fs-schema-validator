@@ -1,7 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/9684b53175fc6c09581e94cc85f05ab77464c7e3"; # nixos-24.11
-
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     systems.url = "github:nix-systems/default-linux";
 
     flake-utils = {
@@ -9,9 +8,28 @@
       inputs.systems.follows = "systems";
     };
 
-    poetry2nix = {
-      url = "github:nablaflow/poetry2nix";
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    uv2nix = {
+      url = "github:pyproject-nix/uv2nix";
+
+      inputs = {
+        pyproject-nix.follows = "pyproject-nix";
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+
+      inputs = {
+        pyproject-nix.follows = "pyproject-nix";
+        uv2nix.follows = "uv2nix";
+        nixpkgs.follows = "nixpkgs";
+      };
     };
   };
 
@@ -19,29 +37,46 @@
     self,
     nixpkgs,
     flake-utils,
+    uv2nix,
+    pyproject-nix,
+    pyproject-build-systems,
     ...
   } @ inputs: (flake-utils.lib.eachDefaultSystem (system: let
     pkgs = import nixpkgs {
       inherit system;
-
-      overlays = [
-        (final: prev: {
-          poetry2nix = inputs.poetry2nix.lib.mkPoetry2Nix {pkgs = prev;};
-        })
-      ];
     };
 
-    poetryEnv = pkgs.poetry2nix.mkPoetryEnv {
-      projectDir = ./.;
+    workspace = uv2nix.lib.workspace.loadWorkspace {workspaceRoot = ./.;};
 
-      preferWheels = true;
+    overlay = workspace.mkPyprojectOverlay {
+      sourcePreference = "wheel";
+    };
 
-      overrides = pkgs.poetry2nix.defaultPoetryOverrides.extend (self: super: {
-        reportlab = super.reportlab.overridePythonAttrs (old: {
-          postPatch = "";
-        });
+    pyprojectOverrides = final: prev: {
+      pycairo = prev.pycairo.overrideAttrs (old: {
+        nativeBuildInputs =
+          (old.nativeBuildInputs or [])
+          ++ (with prev; [meson-python packaging pyproject-metadata])
+          ++ (with pkgs; [meson ninja pkg-config]);
+
+        buildInputs = (old.buildInputs or [])
+          ++ (with pkgs; [cairo]);
       });
     };
+
+    pythonSet =
+      (pkgs.callPackage pyproject-nix.build.packages {
+        python = pkgs.python312;
+      }).overrideScope
+      (
+        pkgs.lib.composeManyExtensions [
+          pyproject-build-systems.overlays.default
+          overlay
+          pyprojectOverrides
+        ]
+      );
+
+    pythonEnv = pythonSet.mkVirtualEnv "env" workspace.deps.all;
 
     src = pkgs.lib.fileset.toSource {
       root = ./.;
@@ -55,46 +90,104 @@
     };
   in {
     devShells.default = pkgs.mkShell {
-      packages = [
-        poetryEnv
-        pkgs.poetry
-        pkgs.just
+      env = {
+        UV_NO_SYNC = "1";
+        UV_PYTHON = pythonSet.python.interpreter;
+        UV_PYTHON_DOWNLOADS = "never";
+      };
+
+      shellHook = ''
+        unset PYTHONPATH
+      '';
+
+      packages = with pkgs; [
+        just
+        uv
+        pythonEnv
       ];
     };
 
     checks = {
-      lint = pkgs.runCommand "lint" {} ''
-        cp -r ${src}/* .
+      lint = pkgs.stdenvNoCC.mkDerivation {
+        name = "lint";
 
-        ${poetryEnv}/bin/ruff format --diff --check .
-        ${poetryEnv}/bin/ruff check .
+        inherit src;
 
-        touch $out
-      '';
+        nativeBuildInputs = [
+          pythonEnv
+        ];
 
-      deptry = pkgs.runCommand "deptry" {} ''
-        cp -r ${src}/* .
+        dontConfigure = true;
+        dontFixup = true;
+        dontInstall = true;
 
-        ${poetryEnv}/bin/deptry .
+        buildPhase = ''
+          ruff format --diff --check .
+          ruff check .
 
-        touch $out
-      '';
+          touch $out
+        '';
+      };
 
-      typecheck = pkgs.runCommand "typecheck" {} ''
-        cp -r ${src}/* .
+      deptry = pkgs.stdenvNoCC.mkDerivation {
+        name = "deptry";
 
-        ${poetryEnv}/bin/mypy .
+        inherit src;
 
-        touch $out
-      '';
+        nativeBuildInputs = [
+          pythonEnv
+        ];
 
-      test = pkgs.runCommand "test" {} ''
-        cp -r ${src}/* .
+        dontConfigure = true;
+        dontFixup = true;
+        dontInstall = true;
 
-        ${poetryEnv}/bin/pytest
+        buildPhase = ''
+          deptry .
 
-        touch $out
-      '';
+          touch $out
+        '';
+      };
+
+      typecheck = pkgs.stdenvNoCC.mkDerivation {
+        name = "typecheck";
+
+        inherit src;
+
+        nativeBuildInputs = [
+          pythonEnv
+        ];
+
+        dontConfigure = true;
+        dontFixup = true;
+        dontInstall = true;
+
+        buildPhase = ''
+          mypy .
+
+          touch $out
+        '';
+      };
+
+      test = pkgs.stdenvNoCC.mkDerivation {
+        name = "test";
+
+        inherit src;
+
+        nativeBuildInputs = [
+          pythonEnv
+        ];
+
+        dontConfigure = true;
+        dontFixup = true;
+        dontInstall = true;
+
+        buildPhase = ''
+          pytest
+
+          touch $out
+        '';
+      };
     };
 
     formatter = pkgs.alejandra;
