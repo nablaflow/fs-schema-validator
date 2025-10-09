@@ -1,34 +1,40 @@
-[tool.poetry]
+[project]
 name = "fs-schema-validator"
 version = "0.1.0"
-description = ""
-authors = ["Federico Ravasio <fr@nablaflow.io>"]
-readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "click ~=8.3",
+  "parsita ~=1.7",
+  "pillow ~=11.3.0",
+  "pillow-avif-plugin ~=1.5.2",
+  "pydantic ~=2.12",
+  "pygltflib ~=1.16",
+  "pyyaml ~=6.0",
+  "sortedcontainers ~=2.4",
+  "svglib ~=1.6",
+]
 
-[tool.poetry.dependencies]
-python = "^3.12"
+[dependency-groups]
+dev = [
+  "deptry ~=0.23.1",
+  "mypy ~=1.18",
+  "orjson ~=3.11",
+  "pytest ~=8.4",
+  "rich ~=14.1",
+  "ruff ~=0.14.0",
+  "types-pyyaml ~=6.0.12",
+]
 
-click = "~8.3"
-parsita = "~1.7"
-pillow = "^11.3.0"
-pillow-avif-plugin = "^1.5.2"
-pydantic = "~2.12"
-pygltflib = "~1.16"
-pyyaml = "~6.0"
-sortedcontainers = "~2.4"
-svglib = "~1.6"
-
-[tool.poetry.group.dev.dependencies]
-deptry = "^0.23.1"
-mypy = "~1.18"
-orjson = "~3.11"
-pytest = "~8.4"
-rich = "~14.1"
-ruff = "~0.14.0"
-types-pyyaml = "~6.0.12"
-
-[tool.poetry.scripts]
+[project.scripts]
 validate_schema = 'fs_schema_validator.__main__:validate'
+
+[build-system]
+requires = ["uv_build >=0.8.0,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "fs_schema_validator"
+module-root = ""
 
 [tool.pytest.ini_options]
 addopts = "-vv"
@@ -132,6 +138,6 @@ module = [
 ]
 ignore_missing_imports = true
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+# [build-system]
+# requires = ["uv_build >=0.8.0,<0.9.0"]
+# build-backend = "uv_build"
