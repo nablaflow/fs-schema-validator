@@ -29,7 +29,7 @@ dev = [
 validate_schema = 'fs_schema_validator.__main__:validate'
 
 [build-system]
-requires = ["uv_build >=0.8.0,<0.9.0"]
+requires = ["uv_build >=0.8.0,<0.10.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
@@ -139,5 +139,5 @@ module = [
 ignore_missing_imports = true
 
 # [build-system]
-# requires = ["uv_build >=0.8.0,<0.9.0"]
+# requires = ["uv_build >=0.8.0,<0.10.0"]
 # build-backend = "uv_build"
