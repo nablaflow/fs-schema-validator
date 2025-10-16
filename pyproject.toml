@@ -4,8 +4,8 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
   "click ~=8.3",
-  "parsita ~=1.7",
-  "pillow ~=11.3.0",
+  "parsita ~=2.2",
+  "pillow ~=12.0.0",
   "pillow-avif-plugin ~=1.5.2",
   "pydantic ~=2.12",
   "pygltflib ~=1.16",
