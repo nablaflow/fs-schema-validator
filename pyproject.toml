@@ -36,9 +36,10 @@ build-backend = "uv_build"
 module-name = "fs_schema_validator"
 module-root = ""
 
-[tool.pytest.ini_options]
-addopts = "-vv"
-pythonpath = "."
+[tool.pytest]
+addopts = ["-vv"]
+minversion = "9.0"
+strict = true
 
 [tool.ruff]
 line-length = 100
