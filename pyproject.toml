@@ -21,7 +21,7 @@ dev = [
   "orjson ~=3.11",
   "pytest ~=9.0",
   "rich ~=14.1",
-  "ruff ~=0.14.0",
+  "ruff ~=0.15.0",
   "types-pyyaml ~=6.0.12",
 ]
 
