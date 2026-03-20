@@ -16,7 +16,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "deptry ~=0.24.0",
+  "deptry ~=0.25.0",
   "mypy ~=1.18",
   "orjson ~=3.11",
   "pytest ~=9.0",
@@ -29,7 +29,7 @@ dev = [
 validate_schema = 'fs_schema_validator.__main__:validate'
 
 [build-system]
-requires = ["uv_build >=0.8.0,<0.10.0"]
+requires = ["uv_build >=0.8.0,<0.11.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
